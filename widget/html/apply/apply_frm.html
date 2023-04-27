@@ -1,0 +1,312 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>申请管理</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/whole/whole_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="alltobaeBoxs" id="vueBox" v-cloak>
+  <div class="cardBoxs">
+
+    <div class="cardtableBoxs" v-for="item in list">
+        <div class="cardInnerBoxs">
+          <font color="#333333">客户选择</font><br/>
+          <font color="#666666">产品名称：{{item.comname}}<br/>最高金额：{{item.amount}}<br/>产品利率：{{item.rate}}%</font>
+          <div class="numberMaxBoxs"><b>编号{{getNumberInt(item.id)}}</b></div>
+        </div>
+        <div class="cardInfoBoxs">
+            <div style="padding:0.5rem 0;"><font color="#333333">客户信息</font></div>
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">申请性质：</div>
+                <div class="cardispaylistBoxs">{{item.location==1?'企业贷':'个人贷'}}</div>
+            </div>
+            <div class="cardispayBoxs" style="margin-bottom:0.5rem;">
+                <div class="cardispaylistBoxs">联系方式：</div>
+                <div class="cardispaylistBoxs" @click="calling(item.tel);">
+                  <font>{{item.tel}} <font color="red">点击拨打</font></font>
+                </div>
+            </div>
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">{{item.location==1?'企业名称：':'客户姓名：'}}</div>
+                <div class="cardispaylistBoxs">{{item.name}}</div>
+            </div>
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">{{item.location==1?'证件号码：':'身份证号：'}}</div>
+                <div class="cardispaylistBoxs">{{item.credential}}</div>
+            </div>
+            <div class="cardispayBoxs" style="margin-top:0.5rem;">
+                <div class="cardispaylistBoxs">证件图片：</div>
+                <div class="cardispaylistBoxs">
+                    <div class="showImagBoxs" v-if="item.location==1">
+                        <div class="showImagListBoxs2" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove1)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs2">点击图片看大图</div>
+                    </div>
+                    <div class="showImagBoxs" v-if="item.location==2">
+                        <div class="showImagListBoxs" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove1)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove2)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs">点击图片看大图</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="addTimeBoxs" style="color:#666666;">申请时间：{{item.addTime}}</div>
+        <div style="color:#666666;padding:0.3rem 0 0 0;" v-if="item.exa==1">
+            <font v-if="item.applystype==1">申请额度：<font color="#4ecc45">{{item.d_amount}}</font></font>
+            <font v-if="item.applystype==2">申请额度：<font color="#4ecc45">{{item.e_amount}}</font></font>
+            <br/>测评利率：<font color="#4ecc45">{{item.e_rate}}%</font>
+        </div>
+        <div style="border-top:1px solid #f6f6f6;color:#666666;padding:0.3rem 0 0 0;" v-if="item.applystate==1">
+            客户经理：<font v-if="item.applystate==1" color="#4ecc45">{{item.contact}}</font><br/>
+            联系方式：<font v-if="item.applystate==1" color="#4ecc45">{{item.telephone}}</font><br/>
+        </div>
+    </div>
+    <div class="showDateFlagBoxs" v-if="showDateFlag == 1"></div>
+
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '',pageParam="";
+    apiready = function () {
+      var winH = $(window).height();
+      $(".showDateFlagBoxs").css({"height": winH+"px"});
+      // 接收页面传参
+      pageParam = api.pageParam;
+      // console.log(JSON.stringify(pageParam));
+      // 下拉刷新
+      api.setRefreshHeaderInfo({
+          loadingImg: 'widget://image/refresh.png',
+          bgColor: '#F6F6F6',
+          textColor: '#d6d6d6',
+          textDown: '下拉刷新...',
+          textUp: '松开刷新...'
+      }, function(ret, err) {
+          vm.page = 1;
+          vm.initpost();
+      });
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            id:"",
+            token:pageParam.token,
+            d_amount:"",
+            e_amount:"",
+            e_rate:"",
+            cause:"",
+            page:1,
+            pagetotal:1,
+            count:0,
+            list:[],
+            showDateFlag:0,
+            evaluationBoxs:"evaluationBoxs",
+            evaluationflag:false,
+            exaFlag:0
+          },
+          methods: {
+              // 设置参数
+              setCause:function(a0){
+                  this.cause = a0;
+              },
+              // 选择审核
+              sellabelradio:function(flag){
+                  this.exaFlag = flag;
+                  if ( flag == 1 ) {
+                      this.evaluationBoxs = "evaluationBoxs2";
+                  } else if( flag == 2 ) {
+                      this.evaluationBoxs = "evaluationBoxs";
+                  } else if( flag == 0 ) {
+                      this.evaluationBoxs = "evaluationBoxs";
+                  }
+              },
+              // 人工测评
+              evaluation:function(item){
+                  this.evaluationflag = true;
+                  this.id = item.id;
+                  this.d_amount = item.d_amount;
+                  this.e_amount = item.e_amount;
+                  this.e_rate = item.e_rate;
+                  this.cause = item.cause;
+                  this.exaFlag = item.exa;
+                  this.sellabelradio(item.exa);
+              },
+              // 页面测试化
+              initpost:function(){
+                var info = {
+                    token:this.token,
+                    location:2,
+                    page:1,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/alltobeevaluated3',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.pagetotal = res.body.pagetotal;
+                        this.count = res.body.count;
+                        this.list = res.body.data;
+                    } else {
+                        this.showDateFlag = 1;
+                        this.list = [];
+                        this.count = 0;
+                        this.pagetotal = 1
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.showDateFlag = 1;
+                      this.list = [];
+                      this.count = 0;
+                      this.pagetotal = 1
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+                api.refreshHeaderLoadDone();
+              },
+              // 下拉刷新
+              postinitbottom:function(){
+                var info = {
+                    token:this.token,
+                    location:1,
+                    page:this.page,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/alltobeevaluated3',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.pagetotal = res.body.pagetotal;
+                        this.count = res.body.count;
+                        for (var i = 0; i < res.body.data.length; i++) {
+                            this.list.push(res.body.data[i]);
+                        }
+                    } else {
+                        this.showDateFlag = 1;
+                        this.list = [];
+                        this.count = 0;
+                        this.pagetotal = 1
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.showDateFlag = 1;
+                      this.list = [];
+                      this.count = 0;
+                      this.pagetotal = 1
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              },
+              // 设置图片
+              setImgVue:function(path){
+                  return url+path;
+              },
+              // 拨打电话
+              calling:function(tel){
+                  if ( dynamicAuthorization("phone") ) {
+                      api.call({
+                          type: 'tel_prompt',
+                          number: tel
+                      });
+                  }
+              },
+              // 获取编号
+              getNumberInt:function(i){
+                  var val = i;
+                  if ( val < 10 ) {
+                      val = '0'+val;
+                  }
+                  return val;
+              },
+              // 查看图片大图
+              showMaxImage:function(item){
+                  var path = [];
+                  if ( item.prove1 != "" ){
+                      path.push(url+item.prove1);
+                  }
+                  if ( item.prove2 != "" ){
+                      path.push(url+item.prove2);
+                  }
+                  browseLargeImages(path);
+              }
+          }
+        });
+        vm.initpost();
+        // 页面是否滚动到底部
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            vm.page += 1
+            if ( vm.page <= vm.pagetotal ) {
+                vm.postinitbottom();
+            }
+        });
+    }
+    // 查看图片大图
+    function browseLargeImages(path) {
+      var imageBrowser = api.require('imageBrowser');
+      imageBrowser.openImages({
+          imageUrls: path
+      });
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

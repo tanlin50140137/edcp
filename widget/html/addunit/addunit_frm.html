@@ -1,0 +1,517 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>产品管理</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" href="../../script/swiper/package/swiper-bundle.min.css">
+    <link rel="stylesheet" type="text/css" href="../../css/addunit/addunit_frm.css" />
+    <script src="../../script/swiper/package/swiper-bundle.min.js"></script>
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="swiper-container" id="vueBox" v-cloak>
+    <div class="swiper-wrapper">
+      <!-- 企业贷 -->
+      <div class="swiper-slide">
+
+        <div class="loanCardBoxs" v-for="item in enterPrise">
+            <div class="nameRowBoxs">
+                <div class="nameListBoxs" :style="{background:getImagePath(item.logo),backgroundSize:'100%',backgroundPosition:'center'}"></div>
+                <div class="nameListBoxs">{{item.comname}}</div>
+            </div>
+            <div class="nameRowBoxs nameRowBottomBoxs">
+              <div class="nameRowTwoBoxs"><font class="TwoFontBoxs">{{getAmount(item.amount)}}</font>{{getDanWei(item.amount)}}</div>
+              <div class="nameRowTwoBoxs">年利率{{item.rate}}%</div>
+            </div>
+            <div class="nameRowBoxs nameRowBottomBoxs">
+              <div class="nameRowTwo2Boxs">最高额度</div>
+              <div class="nameRowTwo2Boxs">利率</div>
+            </div>
+            <div class="redButton2Boxs" @click="editupdate(item)">编辑</div>
+            <div class="redButtonBoxs" @click="editdelete(item)">删除</div>
+        </div>
+        <div class="showDateFlagBoxs" v-if="showDateFlag1 == 1"></div>
+
+      </div>
+      <!-- 个人贷 -->
+      <div class="swiper-slide">
+
+        <div class="loanCardBoxs" v-for="item in thatPerson">
+            <div class="nameRowBoxs">
+                <div class="nameListBoxs" :style="{background:getImagePath(item.logo),backgroundSize:'100%',backgroundPosition:'center'}"></div>
+                <div class="nameListBoxs">{{item.comname}}</div>
+            </div>
+            <div class="nameRowBoxs nameRowBottomBoxs">
+              <div class="nameRowTwoBoxs"><font class="TwoFontBoxs">{{getAmount(item.amount)}}</font>{{getDanWei(item.amount)}}</div>
+              <div class="nameRowTwoBoxs">年利率{{item.rate}}%</div>
+            </div>
+            <div class="nameRowBoxs nameRowBottomBoxs">
+              <div class="nameRowTwo2Boxs">最高额度</div>
+              <div class="nameRowTwo2Boxs">利率</div>
+            </div>
+            <div class="redButton2Boxs" @click="editupdate(item)">编辑</div>
+            <div class="redButtonBoxs" @click="editdelete(item)">删除</div>
+        </div>
+        <div class="showDateFlagBoxs" v-if="showDateFlag2 == 1"></div>
+
+      </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      var winH = $(window).height();
+      $(".showDateFlagBoxs").css({"height": winH+"px"});
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // 下拉刷新
+      api.setRefreshHeaderInfo({
+          loadingImg: 'widget://image/refresh.png',
+          bgColor: '#F6F6F6',
+          textColor: '#d6d6d6',
+          textDown: '下拉刷新...',
+          textUp: '松开刷新...'
+      }, function(ret, err) {
+          if ( vm.activeIndex == 0 ) {
+            // 获取产品数据-获取企业贷
+            vm.page1 = 1;
+            vm.enterPriseTmp = [];
+            vm.productdata(1, 1);
+          } else if ( vm.activeIndex == 1 ) {
+            // 获取产品数据-获取个人贷
+            vm.page2 = 1;
+            vm.thatPersonTmp = [];
+            vm.productdata(2, 1);
+          }
+      });
+      // 列表
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            token:pageParam.token,
+            openFlag:0,
+            page1:1,
+            page2:1,
+            count1:0,
+            pagetotal1:1,
+            count2:0,
+            pagetotal2:1,
+            limit:10,
+            activeIndex:0,
+            enterPrise:[],
+            enterPriseTmp:[],
+            thatPerson:[],
+            thatPersonTmp:[],
+            swiper:"",
+            showDateFlag1:0,
+            showDateFlag2:0
+          },
+          methods: {
+            InitPage:function(){
+                this.page1 = 1;
+                this.page2 = 1;
+                // 启用滑块
+                this.mySwiper();
+                // 获取产品数据-获取企业贷
+                this.productdata(1, 1);
+                // 获取产品数据-获取个人贷
+                this.productdata(2, 1);
+                // 切换时保证每一个　slide　内容适应
+                setTimeout(function(){
+                  vm.slideAdaptation(0);
+                },500);
+            },
+            // 设置logo
+            getImagePath:function(path){
+              return "url("+url+"/"+path+") no-repeat";
+            },
+            // 编辑
+            editupdate:function(item){
+                this.openFlag = 1;
+                item.token = this.token;
+                opennewWin2("addunitupdate_win", "../addunitupdate/addunitupdate_win.html", item);
+            },
+            // 删除
+            editdelete:function(item){
+                this.openFlag = 2;
+                api.confirm({
+                    title: '删除提示',
+                    msg: '选中 “'+item.comname+'” 是否要删除？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                      var info = {
+                          token:vm.token,
+                          id:item.id
+                      };
+                      vm.$http.post(url+'api/product/editdelete',info,{emulateJSON:true}).then(function(res){
+                          // console.log(JSON.stringify(res.body));
+                          if ( res.body.code == 0 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                              if ( vm.activeIndex == 0 ) {
+                                // 获取产品数据-获取企业贷
+                                var a = [];
+                                for (var i = 0; i < vm.enterPrise.length; i++) {
+                                    if ( vm.enterPrise[i].id != item.id ) {
+                                        a.push(vm.enterPrise[i]);
+                                    }
+                                }
+                                vm.enterPrise = a;
+                                vm.slideAdaptation(0);
+                              } else if ( vm.activeIndex == 1 ) {
+                                // 获取产品数据-获取个人贷
+                                var a = [];
+                                for (var i = 0; i < vm.thatPerson.length; i++) {
+                                    if ( vm.thatPerson[i].id != item.id ) {
+                                        a.push(vm.thatPerson[i]);
+                                    }
+                                }
+                                vm.thatPerson = a;
+                                vm.slideAdaptation(1);
+                              }
+                              // 刷新数量
+                              var refreshwin = 'refreshwin();';
+                              api.execScript({
+                                  name: 'addunit_win',
+                                  script: refreshwin
+                              });
+                          } else {
+                            if ( res.body.code == 2 ) {
+                                api.alert({
+                                  title:'提示',
+                                  msg:res.body.msg,
+                                }, function(ret, err) {
+                                  api.closeToWin({
+                                      name: 'root'
+                                  });
+                                });
+                            } else {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                            }
+                          }
+                      },function(err){
+                            // console.log(JSON.stringify(err));
+                            api.alert({
+                              title:'请求异常提示',
+                              msg:err
+                            });
+                      });
+                    }
+                });
+            },
+            // 获取单位
+            getDanWei:function(a0){
+                var b0 = a0.split("");
+                return b0[b0.length-1];
+            },
+            // 获取金额
+            getAmount:function(a0){
+                var b0 = a0.split("");
+                    b0.pop()
+                return b0.join("");
+            },
+            // 获取产品数据-分页
+            productpage:function(flag, page){
+                var info = {
+                    token:this.token,
+                    page:page,
+                    limit:10,
+                    location:flag
+                }
+                // console.log(JSON.stringify(info));
+                this.$http.post(url+'api/product/productdata',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        if ( flag == 1 ) { // 企业贷
+                            this.showDateFlag1 = 0;
+                            this.pagetotal1 = res.body.pagetotal;
+                            this.count1 = res.body.count;
+                            for (var i = 0; i < res.body.data.length; i++) {
+                                this.enterPrise.push(res.body.data[i]);
+                            }
+                            // 切换时保证每一个　slide　内容适应
+                            this.slideAdaptation(0);
+                        } else if( flag == 2 ) { // 个人贷
+                            this.showDateFlag2 = 0;
+                            this.pagetotal2 = res.body.pagetotal;
+                            this.count2 = res.body.count;
+                            for (var i = 0; i < res.body.data.length; i++) {
+                                this.thatPerson.push(res.body.data[i]);
+                            }
+                            this.slideAdaptation(1);
+                        }
+                    } else {
+                      if ( res.body.code == 2 ) {
+                          api.alert({
+                            title:'提示',
+                            msg:res.body.msg,
+                          }, function(ret, err) {
+                            api.closeToWin({
+                                name: 'root'
+                            });
+                          });
+                      } else {
+                          if ( flag == 1 ) { // 企业贷
+                            this.showDateFlag1 = 1;
+                            this.pagetotal1 = 1;
+                            this.count1 = 0;
+                            this.enterPrise = [];
+                          }else{
+                            this.showDateFlag2 = 1;
+                            this.pagetotal2 = 1;
+                            this.count2 = 0;
+                            this.thatPerson = [];
+                          }
+                      }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      if ( flag == 1 ) { // 企业贷
+                        this.showDateFlag1 = 1;
+                        this.pagetotal1 = 1;
+                        this.count1 = 0;
+                        this.enterPrise = [];
+                      }else{
+                        this.showDateFlag2 = 1;
+                        this.pagetotal2 = 1;
+                        this.count2 = 0;
+                        this.thatPerson = [];
+                      }
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+            },
+            // 获取产品数据
+            productdata:function(flag, page){
+              var info = {
+                  token:this.token,
+                  page:page,
+                  limit:10,
+                  location:flag
+              }
+              // console.log(JSON.stringify(info));
+              this.$http.post(url+'api/product/productdata',info,{emulateJSON:true}).then(function(res){
+                  // console.log(JSON.stringify(res.body));
+                  if ( res.body.code == 0 ) {
+                      if ( flag == 1 ) { // 企业贷
+                          this.showDateFlag1 = 0;
+                          this.pagetotal1 = res.body.pagetotal;
+                          this.count1 = res.body.count;
+                          this.enterPrise = res.body.data;
+                      } else if( flag == 2 ) { // 个人贷
+                          this.showDateFlag2 = 0;
+                          this.pagetotal2 = res.body.pagetotal;
+                          this.count2 = res.body.count;
+                          this.thatPerson = res.body.data;
+                      }
+                  } else {
+                    if ( res.body.code == 2 ) {
+                        api.alert({
+                          title:'提示',
+                          msg:res.body.msg,
+                        }, function(ret, err) {
+                          api.closeToWin({
+                              name: 'root'
+                          });
+                        });
+                    } else {
+                        if ( flag == 1 ) { // 企业贷
+                          this.showDateFlag1 = 1;
+                        }else{
+                          this.showDateFlag2 = 1;
+                        }
+                    }
+                  }
+              },function(err){
+                    // console.log(JSON.stringify(err));
+                    if ( flag == 1 ) { // 企业贷
+                      this.showDateFlag1 = 1;
+                    }else{
+                      this.showDateFlag2 = 1;
+                    }
+                    api.alert({
+                      title:'请求异常提示',
+                      msg:err
+                    });
+              });
+              api.refreshHeaderLoadDone();
+            },
+            // 企业立即测评 enterprise 目录
+            enterPriseImmediateEvaluation:function() {
+              // 企业立即测评
+              opennewWin2("enterprise_win","../enterprise/enterprise_win.html", {})
+            },
+            // 个人立即测评 thatperson 目录
+            thatPersonImmediateEvaluation:function() {
+              //个人立即测评
+              opennewWin2("thatperson_win", "../thatperson/thatperson_win.html", {})
+            },
+            // 滑块
+            mySwiper: function(){
+                this.swiper = new Swiper('.swiper-container', {
+                  on:{
+                      slideChange: function(){
+                        vm.activeIndex = this.activeIndex;
+                        // 切换时保证每一个　slide　内容适应
+                        vm.slideAdaptation(this.activeIndex);
+                        // 发出广播
+                        parentSlider(this.activeIndex)
+                      }
+                    }
+                });
+            },
+            // 切换滑块
+            switchSlider: function(swiperIndex) {
+                // 切换滑块
+                this.swiper.slideTo(swiperIndex, 400, false);
+            },
+            // 切换时保证每一个　slide　内容适应
+            slideAdaptation:function(activeIndex){
+                if ( activeIndex == 0 ) {
+                  if ( vm.enterPrise.length > 0 ) {
+                    // 如何企业小于个人
+                    if ( vm.thatPerson.length > vm.enterPrise.length) {
+                        len = vm.thatPerson.length - vm.enterPrise.length;
+                        for (var i = 0; i < len; i++ ) {
+                           vm.thatPersonTmp.push(vm.thatPerson.pop())
+                        }
+                    }
+                    // 还原
+                    if ( vm.enterPriseTmp.length > 0 ){
+                      var a = [];
+                      for( var i=0; i < vm.enterPrise.length; i++ ){
+                          a.push(vm.enterPrise[i]);
+                      }
+                      for( var j=(vm.enterPriseTmp.length-1); j>=0; j-- ){
+                          a.push(vm.enterPriseTmp[j]);
+                      }
+                      vm.enterPrise = a;
+                      vm.enterPriseTmp = [];
+                    }
+                  }
+                } else if ( activeIndex == 1 ) {
+                    if ( vm.thatPerson.length > 0 ) {
+                      // 如何企业包大于个人包
+                      if ( vm.enterPrise.length > vm.thatPerson.length ) {
+                          len = vm.enterPrise.length - vm.thatPerson.length;
+                          for (var i = 0; i < len; i++ ) {
+                             vm.enterPriseTmp.push(vm.enterPrise.pop())
+                          }
+                      }
+                      // 还原
+                      if ( vm.thatPersonTmp.length > 0 ){
+                          var a = [];
+                          for( var i=0; i < vm.thatPerson.length; i++ ){
+                              a.push(vm.thatPerson[i]);
+                          }
+                          for( var j=(vm.thatPersonTmp.length-1); j>=0; j-- ){
+                              a.push(vm.thatPersonTmp[j]);
+                          }
+                          vm.thatPerson = a;
+                          vm.thatPersonTmp = [];
+                      }
+                    }
+                }
+            }
+          }
+      });
+      vm.InitPage();
+
+      api.addEventListener({
+          name:'swipeleft'
+      }, function(ret, err){
+          vm.switchSlider(1)
+      });
+      api.addEventListener({
+          name:'swiperight'
+      }, function(ret, err){
+          vm.switchSlider(0)
+      });
+      // 滚动到底部
+      api.addEventListener({
+          name:'scrolltobottom',
+          extra:{
+              threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+          }
+      }, function(ret, err){
+          if ( vm.activeIndex == 0 ) {
+              if ( vm.page1 < vm.pagetotal1 ) {
+                  vm.page1 = vm.page1 + 1;
+                  vm.productpage(1, vm.page1);
+              }
+          } else if ( vm.activeIndex == 1 ) {
+              if ( vm.page2 < vm.pagetotal2 ) {
+                  vm.page2 = vm.page2 + 1;
+                  vm.productpage(2, vm.page2);
+              }
+          }
+      });
+    }
+    // 父窗口执行选项 - 切换了企业
+    function navigatio1() {
+        vm.switchSlider(0);
+    }
+    // 父窗口执行选项 - 切换了个人
+    function navigatio2() {
+        vm.switchSlider(1);
+    }
+    // 将滑块的index广播到父窗中
+    function parentSlider(i) {
+      api.sendEvent({
+          name: 'addunit_win',
+          extra: {
+              activeIndex:i
+          }
+      });
+    }
+    // 刷新界面
+    function listRefresh(flag) {
+      vm.activeIndex = parseInt(flag)-1;
+      // 刷新界面
+      if ( vm.activeIndex == 0 ) {
+          vm.switchSlider(vm.activeIndex);
+          // 获取产品数据-获取企业贷
+          vm.productdata(1, 1);
+      } else if ( vm.activeIndex == 1 ) {
+          vm.switchSlider(vm.activeIndex);
+          // 获取产品数据-获取个人贷
+          vm.productdata(2, 1);
+      }
+      var refreshwin = 'refreshwin();';
+      api.execScript({
+          name: 'addunit_win',
+          script: refreshwin
+      });
+      // 关闭添加界面
+      setTimeout(function(){
+        api.closeWin({name:"addunitadd_win"});
+      }, 500);
+      // 关闭编辑界面
+      setTimeout(function(){
+        api.closeWin({name:"addunitupdate_win"});
+      }, 500);
+    }
+</script>
+</html>

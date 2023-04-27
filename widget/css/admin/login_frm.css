@@ -1,0 +1,16 @@
+.adminBoxs{width:60%;margin:2.6rem auto;}
+.maxTitleBoxs{text-align:center;font-size:0.95rem;font-weight:600;}
+.minTitleBoxs{text-align:center;color:#999999;margin-top:0.5rem;}
+.userLoginBoxs{padding:0 0.5rem;font-weight:bold;font-size:0.9rem;margin-bottom:1.5rem;}
+.userLoginBoxs2{padding:0 1rem;font-size:0.9rem;margin-bottom:1.5rem;}
+.inputLoginBoxs{border-bottom:1px solid #dddddd;margin-bottom:1rem;}
+input::placeholder{color:#dddddd;}
+.inputBoxs{border:none;}
+.submitButtonBoxs{margin-top:3rem;}
+.buttonSendBoxs{height:47px;width:95%;margin: auto;text-align: center;
+  line-height: 47px;
+  border-radius: 0.2rem;
+  background:#fb4d4c;
+  color:#ffffff;
+}
+.action{background:#fda2a1;}

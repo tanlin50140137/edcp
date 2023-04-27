@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>身份教校验</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/enterprise/enterprise_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="shenfenBoxs" id="vueBox" v-cloak>
+  <div class="tishiBoxs">为了您的资金安全，请提交以下信息进行检验</div>
+  <form id="formData">
+    <div class="cradBoxs">
+      <div class="infoBoxs">
+        <div class="infoLiBoxs">企业名称</div>
+        <div class="infoLiBoxs"><input type="text" name="name" v-model="name" @input="inputSetData();" placeholder="请输入企业名称" class="inputBoxs" /></div>
+      </div>
+      <div class="infoLineBoxs"></div>
+      <div class="infoBoxs">
+        <div class="infoLiBoxs">证件号码</div>
+        <div class="infoLiBoxs"><input type="text" name="credential" v-model="credential" @input="inputSetData();" placeholder="请输入证件号码" class="inputBoxs" /></div>
+      </div>
+      <div class="infoLineBoxs"></div>
+      <div class="infoBoxs">
+        <div class="infoLiBoxs">手机号码</div>
+        <div class="infoLiBoxs"><input type="number" name="tel" v-model="tel" @input="inputSetData();" placeholder="通过手机号码查询测评结果" class="inputBoxs" /></div>
+      </div>
+    </div>
+  </form>
+  <div class="cradBoxs2">
+    <div class="wxTiShiBoxs"></div>
+    <div v-bind:class="[wxPaiZhaoShiBoxs]" @click="uploadDocument();">
+        <img class="wxPaiShowBoxs" :src="imgLicense" alt="上传证件" />
+    </div>
+  </div>
+  <div class="cradBoxs3">
+    <div class="wxTiShiBoxs2"></div>
+    <div class="wxTiShiBiaoBoxs">公司持有的营业执照;<br/>拍摄时确保营业执照<font color="red">边框完整，字体清晰，亮度均匀;</font></div>
+    <div class="canzhaoBoxs"></div>
+  </div>
+  <div class="springBoxs"></div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // console.log(JSON.stringify(pageParam));
+      // 获取数据
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            name:"",
+            credential:"",
+            tel:"",
+            imgLicense:"../../image/2.png",
+            list:pageParam,
+            wxPaiZhaoShiBoxs:"wxPaiZhaoShiBoxs",
+            flagSubmit:0
+          },
+          methods: {
+            // 提交
+            submitForm:function(){
+                if (this.name == "") {
+                  return api.toast({
+                      msg: '请输入企业名称',
+                      duration: 2000,
+                      location: 'top'
+                  });
+                }
+                if (this.credential == "") {
+                  return api.toast({
+                      msg: '请输入证件号码',
+                      duration: 2000,
+                      location: 'top'
+                  });
+                }
+                if (this.tel == "") {
+                  return api.toast({
+                      msg: '请输入手机号码',
+                      duration: 2000,
+                      location: 'top'
+                  });
+                }
+                // console.log(this.tel, this.tel.length);
+                if (this.tel.length != 11 ) {
+                  return api.toast({
+                      msg: '手机号码有误',
+                      duration: 2000,
+                      location: 'top'
+                  });
+                }
+                if (this.imgLicense == "") {
+                  return api.toast({
+                      msg: '请上传营业执照图片',
+                      duration: 2000,
+                      location: 'top'
+                  });
+                }
+                // 提交数据
+                this.list.name = this.name;
+                this.list.credential = this.credential;
+                this.list.tel = this.tel;
+                this.list.imgLicense = this.imgLicense;
+                // console.log(JSON.stringify(this.list));
+                // 发送到窗口中
+                var ImmediateEvaluation = 'ImmediateEvaluation(0);';
+                api.execScript({
+                    name: 'enterprise_win',
+                    script: ImmediateEvaluation
+                });
+                // 提交延时
+                api.showProgress({
+                    title: '正在提交',
+                    text: '请稍候...',
+                    modal: false
+                });
+                // 提交服务器
+                var info = this.list;
+                this.$http.post(url+'api/evaluation/submitevaluation',info,{emulateJSON:true}).then(function(res){
+                    // 关闭延时
+                    api.hideProgress();
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        api.alert({
+                            title: '温馨提示',
+                            msg: res.body.msg,
+                        }, function(ret, err) {
+                            closeWin();
+                        });
+                    } else {
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                        // 发送到窗口中
+                        setTimeout(function(){
+                            var ImmediateEvaluation = 'ImmediateEvaluation(1);';
+                            api.execScript({
+                                name: 'enterprise_win',
+                                script: ImmediateEvaluation
+                            });
+                        },500);
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+            },
+            // 有输入时
+            inputSetData:function() {
+                if ( this.tel != "" && this.name != "" && this.credential != "" && this.imgLicense.indexOf("base64") > -1 ) {
+                    this.flagSubmit = 1;
+                } else {
+                    this.flagSubmit = 0;
+                }
+                // 发送到窗口中
+                var ImmediateEvaluation = 'ImmediateEvaluation('+this.flagSubmit+');';
+                api.execScript({
+                    name: 'enterprise_win',
+                    script: ImmediateEvaluation
+                });
+            },
+            // 获取表单数据
+            getFormDataJson:function() {
+                var data = $("#formData").serialize();
+                var list = data.split("&");
+                for (var i = 0; i < list.length; i++ ) {
+                    var kVal = list[i].split("=");
+                    this.fromData[kVal[0]] = kVal[1];
+                }
+                return this.fromData
+            },
+            // 上传营业执照
+            uploadDocument:function() {
+                // 选择列表
+                api.actionSheet({
+                    cancelTitle: '取消',
+                    buttons: ['拍照','相册']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                        // 验证相机权限
+                        if ( dynamicAuthorization("camera") ) {
+                            updateImage("camera");
+                        }
+                    } else if ( index == 2 ) {
+                        // 验证相册权限
+                        if ( dynamicAuthorization("photos") ) {
+                            updateImage("library");
+                        }
+                    }
+                });
+            }
+          }
+        });
+    }
+    // 上传图片
+    function updateImage(type) {
+      api.getPicture({
+        sourceType: type,
+        encodingType: 'jpg',
+        mediaValue: 'pic',
+        destinationType: 'base64',
+        // destinationType: 'url',
+        allowEdit: true,
+        quality: 100,
+        targetWidth: 640,
+        targetHeight: 480,
+        saveToPhotoAlbum: false
+      }, function(ret, err) {
+          if (ret) {
+            if ( ret.base64Data != "" ) {
+                vm.wxPaiZhaoShiBoxs = "wxPaiZhaoShiBoxs2";
+                vm.imgLicense = ret.base64Data;
+            } else {
+                vm.wxPaiZhaoShiBoxs = "wxPaiZhaoShiBoxs";
+                vm.imgLicense = "../../image/2.png";
+            }
+          } else {
+            vm.wxPaiZhaoShiBoxs = "wxPaiZhaoShiBoxs";
+            vm.imgLicense = "../../image/2.png";
+          }
+          vm.inputSetData();
+      });
+    }
+    // 提交
+    function submit() {
+        vm.submitForm();
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

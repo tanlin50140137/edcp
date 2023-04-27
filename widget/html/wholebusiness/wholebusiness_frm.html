@@ -1,0 +1,515 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>企业待测评</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/whole/whole_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="alltobaeBoxs" id="vueBox" v-cloak>
+  <div class="cardBoxs">
+
+    <div class="cardtableBoxs" v-for="item in list">
+        <div class="cardInnerBoxs">
+          <font color="#666666">客户选择的产品</font><br/>
+          <font color="#999999">{{item.comname}} -> 最高金额{{item.amount}} -> 利率{{item.rate}}%</font>
+          <div class="numberMaxBoxs"><b>编号{{getNumberInt(item.id)}}</b></div>
+        </div>
+        <div class="cardInfoBoxs">
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">测评性质</div>
+                <div class="cardispaylistBoxs">{{item.location==1?'企业贷':'个人贷'}}</div>
+            </div>
+            <div class="cardispayBoxs" style="margin-bottom:0.5rem;">
+                <div class="cardispaylistBoxs">手机号码</div>
+                <div class="cardispaylistBoxs" @click="calling(item.tel);">
+                  <font>{{item.tel}} <font color="red">点击拨打</font></font>
+                </div>
+            </div>
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">{{item.location==1?'企业名称':'客户姓名'}}</div>
+                <div class="cardispaylistBoxs">{{item.name}}</div>
+            </div>
+            <div class="cardispayBoxs">
+                <div class="cardispaylistBoxs">{{item.location==1?'证件号码':'身份证号'}}</div>
+                <div class="cardispaylistBoxs">{{item.credential}}</div>
+            </div>
+            <div class="cardispayBoxs" style="margin-top:0.5rem;">
+                <div class="cardispaylistBoxs">证件图片</div>
+                <div class="cardispaylistBoxs">
+                    <div class="showImagBoxs" v-if="item.location==1">
+                        <div class="showImagListBoxs2" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove1)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs2">点击图片看大图</div>
+                    </div>
+                    <div class="showImagBoxs" v-if="item.location==2">
+                        <div class="showImagListBoxs" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove1)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs" @click="showMaxImage(item);">
+                          <img :src="setImgVue(item.prove2)" class="showImag"/>
+                        </div>
+                        <div class="showImagListBoxs">点击图片看大图</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="addTimeBoxs">提交时间：{{item.addTime}}</div>
+        <div class="rgongBoxs">
+            <div class="rgongButtonStateBoxs">
+              <img src="../../image/evaluation.png" class="imgflagmax" v-if="item.location==1"/>
+              <img src="../../image/records.png" class="imgflagmax" v-if="item.location==2"/>
+              <font class="fonttitleBoxs">待测评</font>
+            </div>
+            <div class="rgongButtonBoxs" @click="evaluation(item);">人工测评</div>
+        </div>
+    </div>
+    <div class="showDateFlagBoxs" v-if="showDateFlag == 1"></div>
+
+  </div>
+  <!-- 测评弹框 -->
+  <div :class="[evaluationBoxs]" v-if="evaluationflag">
+    <div class="evaluationInnerBoxs">
+        <div class="evaluationTitleBoxs">人工测评<font style="float:right">编号{{getNumberInt(id)}}</font></div>
+        <div class="evaluationDispayBoxs">
+            <div class="evaluationListBoxs2">审核材料</div>
+            <div class="evaluationListBoxs2" style="text-align:left;">
+              <label><input type="radio" name="exa" value="0" @click="sellabelradio(0);" checked="checked">未审核</label>
+              <label style="margin-left:0.3rem;"><input type="radio" name="exa" value="1" @click="sellabelradio(1);">合格</label>
+              <label style="margin-left:0.3rem;"><input type="radio" name="exa" value="2" @click="sellabelradio(2);">不合格</label>
+            </div>
+        </div>
+        <!-- 未选择 -->
+        <div v-if="exaFlag==0" style="height:2.7rem;line-height:2.7rem;text-align:center;">
+            <font color="red">审核材料是否合格？</font>
+        </div>
+        <!-- 不通过 -->
+        <div v-if="exaFlag==2">
+          <div class="evaluationDispayBoxs">
+              <div class="evaluationListBoxs">反馈原因</div>
+              <div class="evaluationListBoxs" style="text-align:left;">
+                  <textarea name="cause" v-model="cause" rows="8" cols="80" placeholder="请描述材料问题原因" style="border:1px solid #F4F4F4;background:#F6F6F6;border-radius:0.2rem;"></textarea>
+              </div>
+              <div class="evaluationListBoxs"></div>
+          </div>
+        </div>
+        <!-- 通过 -->
+        <div v-if="exaFlag==1">
+          <div class="evaluationDispayBoxs">
+              <div class="evaluationListBoxs">基本测评</div>
+              <div class="evaluationListBoxs"><input type="text" v-model="d_amount" placeholder="输入测评金额+单位" /></div>
+              <div class="evaluationListBoxs"></div>
+          </div>
+          <div class="evaluationDispayBoxs">
+              <div class="evaluationListBoxs">加强测评</div>
+              <div class="evaluationListBoxs"><input type="text" v-model="e_amount" placeholder="输入测评金额+单位" /></div>
+              <div class="evaluationListBoxs"></div>
+          </div>
+          <div class="evaluationDispayBoxs">
+              <div class="evaluationListBoxs">测评利率</div>
+              <div class="evaluationListBoxs"><input type="number" v-model="e_rate" placeholder="输入测评利率" /></div>
+              <div class="evaluationListBoxs">%</div>
+          </div>
+        </div>
+        <div class="evaluationButtonBoxs">
+            <div class="evaluationfloatBoxs">
+                <div class="evaluationUlBoxs">
+                    <div class="evaluationLiBoxs" @click="cancel">取消</div>
+                    <div class="evaluationLiBoxs" @click="submitto">提交</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      var winH = $(window).height();
+      $(".showDateFlagBoxs").css({"height": winH+"px"});
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // console.log(JSON.stringify(pageParam));
+      // 下拉刷新
+      api.setRefreshHeaderInfo({
+          loadingImg: 'widget://image/refresh.png',
+          bgColor: '#F6F6F6',
+          textColor: '#d6d6d6',
+          textDown: '下拉刷新...',
+          textUp: '松开刷新...'
+      }, function(ret, err) {
+          vm.page = 1;
+          vm.initpost();
+      });
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            id:"",
+            token:pageParam.token,
+            evaluationflag:false,
+            d_amount:"",
+            e_amount:"",
+            e_rate:"",
+            cause:"",
+            page:1,
+            pagetotal:1,
+            count:0,
+            list:[],
+            showDateFlag:0,
+            exaFlag:0,
+            evaluationBoxs:"evaluationBoxs"
+          },
+          methods: {
+              // 页面测试化
+              initpost:function(){
+                var info = {
+                    token:this.token,
+                    location:1,
+                    page:1,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/alltobusiness',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.pagetotal = res.body.pagetotal;
+                        this.count = res.body.count;
+                        this.list = res.body.data;
+                    } else {
+                        this.showDateFlag = 1;
+                        this.list = [];
+                        this.count = 0;
+                        this.pagetotal = 1
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.showDateFlag = 1;
+                      this.list = [];
+                      this.count = 0;
+                      this.pagetotal = 1
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+                api.refreshHeaderLoadDone();
+              },
+              // 拨打电话
+              calling:function(tel){
+                  if ( dynamicAuthorization("phone") ) {
+                      api.call({
+                          type: 'tel_prompt',
+                          number: tel
+                      });
+                  }
+              },
+              // 下拉刷新
+              postinitbottom:function(){
+                var info = {
+                    token:this.token,
+                    location:1,
+                    page:this.page,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/alltobusiness',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.pagetotal = res.body.pagetotal;
+                        this.count = res.body.count;
+                        for (var i = 0; i < res.body.data.length; i++) {
+                            this.list.push(res.body.data[i]);
+                        }
+                    } else {
+                        this.showDateFlag = 1;
+                        this.list = [];
+                        this.count = 0;
+                        this.pagetotal = 1
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.showDateFlag = 1;
+                      this.list = [];
+                      this.count = 0;
+                      this.pagetotal = 1
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              },
+              // 设置图片
+              setImgVue:function(path){
+                  return url+path;
+              },
+              // 获取编号
+              getNumberInt:function(i){
+                  var val = i;
+                  if ( val < 10 ) {
+                      val = '0'+val;
+                  }
+                  return val;
+              },
+              // 查看图片大图
+              showMaxImage:function(item){
+                  var path = [];
+                  if ( item.prove1 != "" ){
+                      path.push(url+item.prove1);
+                  }
+                  if ( item.prove2 != "" ){
+                      path.push(url+item.prove2);
+                  }
+                  browseLargeImages(path);
+              },
+              // 人工测评
+              evaluation:function(item){
+                  this.evaluationflag = true;
+                  this.id = item.id;
+              },
+              // 选择审核
+              sellabelradio:function(flag){
+                  this.exaFlag = flag;
+                  if ( flag == 1 ) {
+                      this.evaluationBoxs = "evaluationBoxs2";
+                  } else if( flag == 2 ) {
+                      this.evaluationBoxs = "evaluationBoxs";
+                  } else if( flag == 0 ) {
+                      this.evaluationBoxs = "evaluationBoxs";
+                  }
+              },
+              // 提交
+              submitto:function(){
+                  if( this.exaFlag == 0 ) {
+                    return api.toast({
+                        msg: '审核材料是否符合？',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                  }
+                  // 审核合格
+                  if ( this.exaFlag == 1 ) {
+                      if( this.d_amount == "" ){
+                        return api.toast({
+                            msg: '请输入基本测评金额',
+                            duration: 2000,
+                            location: 'top'
+                        });
+                      }
+                      if( this.e_amount == "" ){
+                        return api.toast({
+                            msg: '请输入加强测评金额',
+                            duration: 2000,
+                            location: 'top'
+                        });
+                      }
+                      if( this.e_rate == "" ){
+                        return api.toast({
+                            msg: '请输入测评利率',
+                            duration: 2000,
+                            location: 'top'
+                        });
+                      }
+                      // 提交延迟
+                      api.showProgress({
+                          title: '正在提交',
+                          text: '请稍后...',
+                          modal: false
+                      });
+                      var info = {
+                          id:this.id,
+                          exa:this.exaFlag,
+                          token:this.token,
+                          d_amount:this.d_amount,
+                          e_amount:this.e_amount,
+                          e_rate:this.e_rate
+                      }
+                      this.$http.post(url+'api/admin/toexamine',info,{emulateJSON:true}).then(function(res){
+                          // console.log(JSON.stringify(res.body));
+                          api.hideProgress();
+                          if ( res.body.code == 0 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                              // 关闭浮动框
+                              this.evaluationflag = false;
+                              this.exa = 0;
+                              this.e_amount = "";
+                              this.e_rate = "";
+                              // 刷新列表
+                              this.initpost();
+                              // 通知到win
+                              var refreshquantity = 'refreshquantity();';
+                              api.execScript({
+                                  name: 'wholebusiness_win',
+                                  script: refreshquantity
+                              });
+                          } else {
+                              if( res.body.code == 2 ){
+                                  api.alert({
+                                    title:'提示',
+                                    msg:res.body.msg,
+                                  }, function(ret, err) {
+                                    api.closeToWin({
+                                        name: 'root'
+                                    });
+                                  });
+                              } else {
+                                api.toast({
+                                    msg: res.body.msg,
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                              }
+                          }
+                      },function(err){
+                            // console.log(JSON.stringify(err));
+                            api.alert({
+                              title:'请求异常提示',
+                              msg:err
+                            });
+                      });
+                  }
+                  //　审核不合格
+                  else if( this.exaFlag == 2 ) {
+                      if ( this.cause == "" ) {
+                        return api.toast({
+                            msg: '请描述材料问题原因',
+                            duration: 2000,
+                            location: 'top'
+                        });
+                      }
+                      var info = {
+                          id:this.id,
+                          token:this.token,
+                          exa:this.exaFlag,
+                          cause:this.cause
+                      }
+                      this.$http.post(url+'api/admin/toexaminecause',info,{emulateJSON:true}).then(function(res){
+                          // console.log(JSON.stringify(res.body));
+                          api.hideProgress();
+                          if ( res.body.code == 0 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                              // 关闭浮动框
+                              this.evaluationflag = false;
+                              this.exa = 0;
+                              this.cause = "";
+                              // 刷新列表
+                              this.initpost();
+                              // 通知到win
+                              var refreshquantity = 'refreshquantity();';
+                              api.execScript({
+                                  name: 'wholebusiness_win',
+                                  script: refreshquantity
+                              });
+                          } else {
+                              if( res.body.code == 2 ){
+                                  api.alert({
+                                    title:'提示',
+                                    msg:res.body.msg,
+                                  }, function(ret, err) {
+                                    api.closeToWin({
+                                        name: 'root'
+                                    });
+                                  });
+                              } else {
+                                api.toast({
+                                    msg: res.body.msg,
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                              }
+                          }
+                      },function(err){
+                            // console.log(JSON.stringify(err));
+                            api.alert({
+                              title:'请求异常提示',
+                              msg:err
+                            });
+                      });
+                  }
+              },
+              // 取消
+              cancel:function(){
+                  this.evaluationflag = false;
+              }
+          }
+        });
+        vm.initpost();
+        // 页面是否滚动到底部
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            vm.page += 1
+            if ( vm.page <= vm.pagetotal ) {
+                vm.postinitbottom();
+            }
+        });
+    }
+    // 查看图片大图
+    function browseLargeImages(path) {
+      var imageBrowser = api.require('imageBrowser');
+      imageBrowser.openImages({
+          imageUrls: path
+      });
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

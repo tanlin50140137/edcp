@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>添加子账号</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/addaccount/addaccount_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div id="vueBox" v-cloak>
+  <div class="adminTitleBoxs">添加一个子账号，协助主账号进行后台管理</div>
+  <form id="formData">
+    <div class="adminListBoxs">
+        <div class="fromBoxs">
+            <div class="fromListBoxs">设置账号</div>
+            <div class="fromListBoxs"><input type="text" name="username" placeholder="请设置账号" ></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">设置密码</div>
+            <div class="fromListBoxs"><input type="password" name="password1" placeholder="请设置密码" ></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">确认密码</div>
+            <div class="fromListBoxs"><input type="password" name="password2" placeholder="请输入确认密码" ></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">设置昵称</div>
+            <div class="fromListBoxs"><input type="text" name="nickname" placeholder="请设置昵称" ></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">真实姓名</div>
+            <div class="fromListBoxs"><input type="text" name="name" placeholder="请输入姓名" ></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">手机号码</div>
+            <div class="fromListBoxs"><input type="number" name="tel" placeholder="请输入手机号码" ></div>
+        </div>
+    </div>
+  </form>
+  <div class="submitBoxs">
+      <div class="submitButtonBoxs" @click="submitButton();">提交</div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            token:pageParam.token,
+            fromData:{}
+          },
+          methods: {
+            // 提交
+            submitButton: function() {
+                var data = this.getFormDataJson();
+                if ( data.username == '' ) {
+                    return api.toast({
+                        msg: '请设置账号',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.password1 == '' ) {
+                    return api.toast({
+                        msg: '请设置密码',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.password2 == '' ) {
+                    return api.toast({
+                        msg: '请输入确认密码',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.password1 != data.password2 ) {
+                    return api.toast({
+                        msg: '两次密码输入不一至',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.tel != "" ) {
+                    if ( data.tel.length < 11 ) {
+                        return api.toast({
+                            msg: '手机号码不正确',
+                            duration: 2000,
+                            location: 'top'
+                        });
+                    }
+                }
+                data.token = this.token;
+                this.post(data);
+            },
+            // 获取表单数据
+            getFormDataJson:function() {
+                var data = $("#formData").serialize();
+                var list = data.split("&");
+                for (var i = 0; i < list.length; i++ ) {
+                    var kVal = list[i].split("=");
+                    this.fromData[kVal[0]] = kVal[1];
+                }
+                return this.fromData
+            },
+            // 提交
+            post:function(info){
+                this.$http.post(url+'api/login/addaccount',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        api.toast({
+                            msg: res.body.msg,
+                            duration: 2000,
+                            location: 'middle'
+                        });
+                        //通知列表刷新
+                        var listRefresh = 'listRefresh();';
+                        api.execScript({
+                            name: 'account_win',
+                            frameName: 'account_frm',
+                            script: listRefresh
+                        });
+                    } else {
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+            }
+          }
+        });
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

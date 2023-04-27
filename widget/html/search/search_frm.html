@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>查询测评结果</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/search/search_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div id="vueBox" v-cloak>
+  <div class="showSearchBoxs" v-for="item in list">
+      <div class="cepingSearchBoxs">
+        <div class="cepingListBoxs">{{getTimeflag(item.addTime)}}</div>
+        <div class="cepingListBoxs" style="text-align:right;color:#f78748;">{{item.location==1?"企业贷":"个人贷"}}</div>
+      </div>
+      <div class="cepingComnameBoxs">产品名称：{{item.comname}}<br/>最高金额：{{item.amount}}<br/>产品利率：{{item.rate}}</div>
+      <div v-if="item.state==0"><font color="red">待测评</font></div>
+      <div v-if="item.state==1"><font color="#11a746">已测评</font></div>
+      <div class="showrelativeBoxs" @click="viewprogress(item);" v-if="item.applystate==0">点击查看进度</div>
+      <div class="showrelativeBoxs action" @click="viewprogress(item);" v-if="item.applystate==1">查看申请结果</div>
+  </div>
+  <div class="showDateFlagBoxs" v-if="showDateFlag == 1"></div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var winH = $(window).height();
+    $(".showDateFlagBoxs").css({"height": winH+"px"});
+    var vm = '';
+    apiready = function () {
+      // 下拉刷新
+      api.setRefreshHeaderInfo({
+          loadingImg: 'widget://image/refresh.png',
+          bgColor: '#F6F6F6',
+          textColor: '#d6d6d6',
+          textDown: '下拉刷新...',
+          textUp: '松开刷新...'
+      }, function(ret, err) {
+          vm.page = 1;
+          vm.list = []
+          vm.refresh();
+      });
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            page:1,
+            count:0,
+            pagetotal:1,
+            list:[],
+            tel:"",
+            showDateFlag:1
+          },
+          methods: {
+              // 查看进度
+              viewprogress:function(item){
+                  opennewWin2("results_win", "../results/results_win.html", item);
+              },
+              // 截取时间
+              getTimeflag:function(a0){
+                  var b0 = a0.split(" ");
+                  return b0[0];
+              },
+              // 刷新
+              refresh:function(){
+                var info = {
+                    tel:this.tel,
+                    page:1,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/seachInfo',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.count = res.body.count;
+                        this.pagetotal = res.body.pagetotal;
+                        this.list = res.body.data;
+                        // 获取搜索数量
+                        var statistics = 'statistics('+this.count+');';
+                        api.execScript({
+                            name: 'search_win',
+                            script: statistics
+                        });
+                    } else {
+                      this.showDateFlag = 1;
+                      this.page = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.list = [];
+                      api.toast({
+                          msg: res.body.msg,
+                          duration: 2000,
+                          location: 'middle'
+                      });
+                      // 获取搜索数量
+                      var statistics = 'statistics(0);';
+                      api.execScript({
+                          name: 'search_win',
+                          script: statistics
+                      });
+                    }
+                    api.refreshHeaderLoadDone();
+                },function(err){
+                      api.refreshHeaderLoadDone();
+                      this.showDateFlag = 1;
+                      this.page = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.list = [];
+                      // 获取搜索数量
+                      var statistics = 'statistics(0);';
+                      api.execScript({
+                          name: 'search_win',
+                          script: statistics
+                      });
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              },
+              // 初始化
+              seachInfo:function(tel){
+                this.tel = tel;
+                var info = {
+                    tel:this.tel,
+                    page:1,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/seachInfo',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.count = res.body.count;
+                        this.pagetotal = res.body.pagetotal;
+                        this.list = res.body.data;
+                        // 获取搜索数量
+                        var statistics = 'statistics('+this.count+');';
+                        api.execScript({
+                            name: 'search_win',
+                            script: statistics
+                        });
+                    } else {
+                      this.showDateFlag = 1;
+                      this.page = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.list = [];
+                      api.toast({
+                          msg: res.body.msg,
+                          duration: 2000,
+                          location: 'middle'
+                      });
+                      // 获取搜索数量
+                      var statistics = 'statistics(0);';
+                      api.execScript({
+                          name: 'search_win',
+                          script: statistics
+                      });
+                    }
+                    api.refreshHeaderLoadDone();
+                },function(err){
+                      this.page = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.list = [];
+                      this.showDateFlag = 1;
+                      // 获取搜索数量
+                      var statistics = 'statistics(0);';
+                      api.execScript({
+                          name: 'search_win',
+                          script: statistics
+                      });
+                      api.refreshHeaderLoadDone();
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              },
+              // 下拉刷新
+              scrolltobottom:function(){
+                var info = {
+                    tel:this.tel,
+                    page:this.page,
+                    limit:10
+                };
+                this.$http.post(url+'api/admin/seachInfo',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.count = res.body.count;
+                        this.pagetotal = res.body.pagetotal;
+                        for (var i = 0; i < res.body.data.length; i++) {
+                            this.list.push(res.body.data[i]);
+                        }
+                        // 获取搜索数量
+                        var statistics = 'statistics('+this.count+');';
+                        api.execScript({
+                            name: 'search_win',
+                            script: statistics
+                        });
+                    }
+                },function(err){
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              }
+          }
+        });
+        // 下拉刷新
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            vm.page = vm.page + 1;
+            if ( vm.page <= vm.pagetotal ) {
+                vm.scrolltobottom();
+            }
+        });
+    }
+    // 搜索数据
+    function seachInfo(item) {
+        vm.seachInfo(item);
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

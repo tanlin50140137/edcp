@@ -1,0 +1,9 @@
+.adminTitleBoxs{margin:0.5rem;color:#999999;padding:0.4rem 0.6rem;}
+.adminListBoxs{padding:0.6rem;background:#ffffff;margin:0.5rem;border-radius:0.2rem;}
+.fromBoxs{display: flex;align-items: center;flex-wrap: nowrap;}
+.fromListBoxs:nth-child(1){width:25%;}
+.fromListBoxs:nth-child(2){width:75%;}
+input::placeholder{color:#dddddd;}
+.submitBoxs{margin:0.5rem;}
+.submitButtonBoxs{height:47px;line-height:47px;text-align:center;border-radius:0.2rem;background:#fb4d4c;color:#ffffff;}
+.action{background:#fda2a1;}

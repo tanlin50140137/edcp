@@ -1,0 +1,7 @@
+.showSearchBoxs{margin:0.5rem;background:#FFFFFF;padding:0.5rem;border-radius:0.2rem;position:relative;}
+.cepingSearchBoxs{display:flex;align-items:center;flex-wrap:nowrap;}
+.cepingListBoxs{width: 50%;}
+.cepingComnameBoxs{padding:0.5rem 0;color:#f78748;}
+.showrelativeBoxs{border:1px solid #f78748;background:#f78748;color:#ffffff;position:absolute;bottom:0.5rem;right:0.5rem;padding:0.2rem 0.5rem;border-radius:0.2rem;}
+.showDateFlagBoxs{background:url(../../image/noproduct.png) no-repeat;background-position:center;}
+.action{background:#4d85ff;border:1px solid #4d85ff;}

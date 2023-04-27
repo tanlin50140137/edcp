@@ -1,0 +1,12 @@
+.adminTitleBoxs{margin:0.5rem;color:#999999;padding:0.4rem 0.6rem;}
+.adminListBoxs{padding:0.6rem;background:#ffffff;margin:0.5rem;border-radius:0.2rem;}
+.fromBoxs{display: flex;align-items: center;flex-wrap: nowrap;margin-bottom:0.5rem;}
+.fromListBoxs:nth-child(1){width:25%;}
+.fromListBoxs:nth-child(2){width:60%;}
+.fromListBoxs:nth-child(3){width:15%;text-align:center;}
+input::placeholder{color:#dddddd;}
+.submitBoxs{margin:0.5rem;}
+.submitButtonBoxs{height:47px;line-height:47px;text-align:center;border-radius:0.2rem;background:#fb4d4c;color:#ffffff;}
+.action{background:#fda2a1;}
+.imgFromBoxs{border:1px solid #F6F6F6;width:64px;height:64px;border-radius:0.2rem;overflow:hidden;text-align: center;}
+.logoImageStyle{width:auto;height:auto;max-width:100%;min-height:100%;margin:auto;}

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/admin/login_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="adminBoxs">
+    <div class="maxTitleBoxs">登录管理员后台</div>
+    <div class="minTitleBoxs">快捷处理 便捷管理</div>
+</div>
+<div class="userLoginBoxs">账号登录</div>
+<div class="userLoginBoxs2" id="vueBox" v-cloak>
+  <div class="inputLoginBoxs">
+    <input type="text" v-model="user" @input="checkInput();" placeholder="请输入账号" class="inputBoxs"/>
+  </div>
+  <div class="inputLoginBoxs">
+    <input type="password" v-model="pwd" @input="checkInput();" placeholder="请输入登录密码" class="inputBoxs"/>
+  </div>
+  <div class="submitButtonBoxs">
+      <div class="buttonSendBoxs" @click="loginAdmin();" v-if="btnState==1">登录</div>
+      <div class="buttonSendBoxs action" v-if="btnState==0">登录</div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            user:'',
+            pwd:'',
+            btnState:0
+          },
+          methods: {
+            // 检查按钮状态
+            checkInput:function(){
+              if ( this.user != '' && this.pwd != '' ) {
+                  this.btnState = 1
+              } else {
+                  this.btnState = 0
+              }
+            },
+            // 登录后台
+            loginAdmin:function(){
+                var info = {
+                    username: this.user,
+                    password: this.pwd
+                };
+                this.btnState = 0;
+                api.showProgress({
+                    title: '正在登录',
+                    text: '请稍后...',
+                    modal: false
+                });
+                this.$http.post(url+'api/login/check_login',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    api.hideProgress();
+                    if ( res.body.code == 0 ) {
+                      opennewWin2("admin_win", "../admin/admin_win.html", {token:res.body.token})
+                    } else {
+                      this.btnState = 1;
+                      api.toast({
+                          msg: res.body.msg,
+                          duration: 2000,
+                          location: 'top'
+                      });
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.btnState = 1;
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+            }
+          }
+        });
+    }
+</script>
+</html>

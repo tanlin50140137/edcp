@@ -1,0 +1,26 @@
+html{background: #f6f6f6;}
+.loanCardBoxs{margin:0.6rem;padding:0.5rem 0.8rem;background:#ffffff;
+  border:1px solid #ffffff;
+  border-radius:0.2rem;
+  box-shadow:1px 1px 10px #f6f6f6;
+  position:relative;
+}
+.nameRowBoxs{display:flex;align-items:center;flex-wrap:nowrap;width:100%;}
+.nameListBoxs:nth-child(1){width:54px;height:54px;}
+.nameListBoxs:nth-child(2){margin-left:0.5rem;}
+.nameRowTwoBoxs:nth-child(1){width:40%;color:#d94258;font-weight:bold;}
+.nameRowTwoBoxs:nth-child(2){width:60%;font-weight:bold;color:#775f45;}
+.TwoFontBoxs{font-size:1rem;}
+.nameRowTwo2Boxs:nth-child(1){width:40%;color:#c0c0c0;}
+.nameRowTwo2Boxs:nth-child(2){width:60%;color:#c0c0c0;}
+.nameRowBottomBoxs{margin-top:0.5rem;margin-bottom:0.6rem;}
+.redButtonBoxs{position:absolute;bottom:0.7rem;right:0.5rem;
+  border-radius:10rem;
+  width:95px;
+  height:44px;
+  text-align: center;
+  line-height: 45px;
+  background:#eb322d;
+  color: #ffffff;
+}
+.showDateFlagBoxs{background:url(../../image/noproduct.png) no-repeat;background-position:center;}

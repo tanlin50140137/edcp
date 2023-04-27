@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/home/index_win.css" />
+</head>
+<body>
+  <div id="vueBox">
+    <header class="aui-bar" id="aui-header">
+        <div class="aui-title">
+          <b>产品</b>
+          <font class="guanliBoxs" onclick="login();">管理</font>
+        </div>
+        <div class="navigationBoxs">
+          <div class="navigationInnerBoxs">
+              <div class="navigationUiBoxs">
+                  <div class="navigationLiBoxs navigationLiact_1" onclick="navigatio(0);">企业贷</div>
+                  <div class="navigationLiBoxs" onclick="navigatio(1);">个人贷</div>
+              </div>
+              <div class="slipperyBoxs">
+                <div class="slipperyInnerBoxs"></div>
+              </div>
+          </div>
+          <div class="queryBoxs" onclick="search();">
+            查询结果
+            <img src="../../image/search2.png" class="querySearchBoxs"/>
+          </div>
+        </div>
+    </header>
+    <footer></footer>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var header,headerPos;
+    apiready = function(){
+        api.parseTapmode();
+        header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        headerPos = $api.offset(header);
+        body_h = $api.offset($api.dom('body')).h;
+        footer_h = 0
+        var auiTitle = $(".aui-title").height();
+        $(".navigationBoxs").css({"height":((headerPos.h+25)-auiTitle)+"px"});
+        api.openFrame({
+            name: 'index_frm',
+            url: 'index_frm.html',
+            bounces: true,
+            // overScrollMode:"scrolls",
+            rect: {
+                x: 0,
+                y: headerPos.h+90,
+                w: 'auto',
+                h: 'auto'
+            }
+        });
+        // 监听子页面
+        api.addEventListener({
+            name: 'index_win'
+        }, function(ret, err) {
+            // 监听到子窗口滑动时触发
+            subWindowHasSlid(ret.value.activeIndex);
+        });
+    };
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+    //　点击导航条
+    function navigatio(i) {
+        $(".navigationLiBoxs").removeClass("navigationLiact_1");
+        $(".navigationLiBoxs").eq(i).addClass("navigationLiact_1");
+        // 滑动块
+        if(i == 1) {
+            var wBox = $(".slipperyBoxs").width()
+            var wChild = $(".slipperyInnerBoxs").width()
+            var juli = (wBox - wChild) - 14;
+            $(".slipperyInnerBoxs").animate({left:juli+"px"}, 200);
+            // 执行子窗口函数
+            var navigatio2 = 'navigatio2();';
+            api.execScript({
+                  frameName: 'index_frm',
+                  script: navigatio2
+            });
+        } else if (i == 0) {
+            $(".slipperyInnerBoxs").animate({left:"0"}, 200);
+            // 执行子窗口函数
+            var navigatio1 = 'navigatio1();';
+            api.execScript({
+                  frameName: 'index_frm',
+                  script: navigatio1
+            });
+        }
+    }
+    // 监听子窗口滑动了
+    function subWindowHasSlid(activeIndex) {
+        $(".navigationLiBoxs").removeClass("navigationLiact_1");
+        $(".navigationLiBoxs").eq(activeIndex).addClass("navigationLiact_1");
+        if( activeIndex == 0 ){
+            $(".slipperyInnerBoxs").animate({left:"0"}, 200);
+        } else if ( activeIndex == 1 ) {
+            var wBox = $(".slipperyBoxs").width()
+            var wChild = $(".slipperyInnerBoxs").width()
+            var juli = (wBox - wChild) - 14;
+            $(".slipperyInnerBoxs").animate({left:juli+"px"}, 200);
+        }
+    }
+    // 查询测评结果
+    function search() {
+      opennewWin2("search_win","../search/search_win.html", {})
+    }
+    // 管理登录
+    function login() {
+      opennewWin2("login_win","../admin/login_win.html", {})
+    }
+</script>
+</html>

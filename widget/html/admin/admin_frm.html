@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>管理后台</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/admin/admin_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div id="vueBox" v-cloak>
+  <div class="adminGuanLiBoxs">
+      <div class="userInfoBoxs">账号:{{userInfo.username}} <font class="chaojigualiBoxs">{{userInfo.power}}</font></div>
+  </div>
+  <div class="adminCardBoxs">
+    <div class="adminCardTitileBoxs"></div>
+    <div class="adminCardButtonBoxs">
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="aanageAccount(1);">
+            <div class="addhuodaiBoxs" style="background:url(../../image/subaccount.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">管理账号</div>
+          </div>
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="addunit();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/addunit.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">管理产品</div>
+          </div>
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="allToBeEvaluated();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/evaluated.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">全部待测评</div>
+          </div>
+          <!-- <div class="redDotBoxs" v-if="all>0">{{all}}</div> -->
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="businessToBeEvaluated();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/evaluation.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">企业待测评</div>
+          </div>
+          <!-- <div class="redDotBoxs" v-if="allqy>0">{{allqy}}</div> -->
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="personToBeEvaluated();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/records.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">个人待测评</div>
+          </div>
+          <!-- <div class="redDotBoxs" v-if="allgr>0">{{allgr}}</div> -->
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="alreadyToBeEvaluated();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/latest.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">已测评记录</div>
+          </div>
+        </div>
+        <div class="adminCardListBoxs">
+          <div class="adminCardInnerBoxs" @click="applyToBeEvaluated();">
+            <div class="addhuodaiBoxs" style="background:url(../../image/apply.png) no-repeat;background-position:center;background-size:100%;"></div>
+            <div class="addhuodaiTitleBoxs">申请管理</div>
+          </div>
+          <!-- <div class="redDotBoxs" v-if="shengl>0">{{shengl}}</div> -->
+        </div>
+    </div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            token:pageParam.token,
+            userInfo:{},
+            all:0,
+            allqy:0,
+            allgr:0,
+            shengl:0
+          },
+          methods: {
+              // 申请管理
+              applyToBeEvaluated:function(){
+                  opennewWin2("apply_win", "../apply/apply_win.html", pageParam);
+              },
+              // 已经测评记录
+              alreadyToBeEvaluated:function(){
+                  opennewWin2("wholealready_win", "../wholealready/wholealready_win.html", pageParam);
+              },
+              // 个人待测评
+              personToBeEvaluated:function(){
+                  opennewWin2("wholeperson_win", "../wholeperson/wholeperson_win.html", pageParam);
+              },
+              // 企业待测评
+              businessToBeEvaluated:function(){
+                  opennewWin2("wholebusiness_win", "../wholebusiness/wholebusiness_win.html", pageParam);
+              },
+              // 全部待测评
+              allToBeEvaluated:function(){
+                  opennewWin2("whole_win", "../whole/whole_win.html", pageParam);
+              },
+              // 添加单位
+              addunit:function(){
+                  opennewWin2("addunit_win", "../addunit/addunit_win.html", pageParam);
+              },
+              // 管理账号
+              aanageAccount:function(flag){
+                  var info = {
+                      token: this.token
+                  };
+                  this.$http.post(url+'api/login/checkpower',info,{emulateJSON:true}).then(function(res){
+                      if ( res.body.code == 0 ) {
+                        if( flag == 1 ){
+                            opennewWin2("account_win", "../account/account_win.html", pageParam);
+                        }
+                      } else {
+                          if ( res.body.code == 2 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'bottom'
+                              });
+                          } else {
+                              api.alert({
+                                  title: '提示',
+                                  msg: res.body.msg,
+                              }, function(ret, err) {
+                                  closeWin();
+                              });
+                          }
+                      }
+                  },function(err){
+                        // console.log(JSON.stringify(err));
+                        api.alert({
+                          title:'请求异常提示',
+                          msg:err
+                        }, function(ret, err) {
+                            closeWin();
+                        });
+                  });
+              },
+              // 登录后台
+              postinit:function(){
+                  var info = {
+                      token: this.token
+                  };
+                  this.$http.post(url+'api/login/information',info,{emulateJSON:true}).then(function(res){
+                      if ( res.body.code == 0 ) {
+                          this.userInfo = res.body.data;
+                          this.all = res.body.all;
+                          this.allqy = res.body.allqy;
+                          this.allgr = res.body.allgr;
+                          this.shengl = res.body.shengl;
+                      } else {
+                          api.alert({
+                              title: '提示',
+                              msg: res.body.msg,
+                          }, function(ret, err) {
+                              closeWin();
+                          });
+                      }
+                  },function(err){
+                        // console.log(JSON.stringify(err));
+                        api.alert({
+                          title:'请求异常提示',
+                          msg:err
+                        }, function(ret, err) {
+                            closeWin();
+                        });
+                  });
+              }
+          }
+        });
+        vm.postinit();
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

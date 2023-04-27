@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>添加产品</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/addunitadd/addunitadd_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div id="vueBox" v-cloak>
+  <div class="adminTitleBoxs">添加产品，在前台展示（企业贷、个人贷）</div>
+  <form id="formData">
+    <div class="adminListBoxs">
+        <div class="fromBoxs">
+            <div class="fromListBoxs">LOGO</div>
+            <div class="fromListBoxs">
+              <div @click="getLogo();">
+                  <div class="imgFromBoxs">
+                    <img :src="logoImage" alt="logo" class="logoImageStyle">
+                  </div>
+                  点击添加
+              </div>
+            </div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">产品名称</div>
+            <div class="fromListBoxs"><input type="text" name="comname" placeholder="请输入产品名称" /></div>
+            <div class="fromListBoxs"></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">最高额度</div>
+            <div class="fromListBoxs"><input type="text" name="amount" placeholder="请输入最高额度+单位" /></div>
+            <div class="fromListBoxs"></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">产品利率</div>
+            <div class="fromListBoxs"><input type="number" name="rate" placeholder="请输入利率" /></div>
+            <div class="fromListBoxs">%</div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">客户经理</div>
+            <div class="fromListBoxs"><input type="text" name="contact" placeholder="请输入客户经理" /></div>
+            <div class="fromListBoxs"></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">联系方式</div>
+            <div class="fromListBoxs"><input type="text" name="telephone" placeholder="客户经理联系方式" /></div>
+            <div class="fromListBoxs"></div>
+        </div>
+        <div class="fromBoxs">
+            <div class="fromListBoxs">投放位置</div>
+            <div class="fromListBoxs">
+              <label><input type="radio" name="location" value="1" id="qiyeBoxs"/>企业贷</label>
+              <label style="margin-left:1rem;"><input type="radio" name="location" value="2"  id="gerenBoxs"/>个人贷</label>
+            </div>
+        </div>
+    </div>
+  </form>
+  <div class="submitBoxs">
+      <div class="submitButtonBoxs" @click="submitButton();">提交</div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            token:pageParam.token,
+            fromData:{},
+            logoImage:"../../image/add.png"
+          },
+          methods: {
+            // 点击获取Logo
+            getLogo:function(){
+                api.actionSheet({
+                    cancelTitle: '取消',
+                    buttons: ['拍照','相册']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                        // 验证相机权限
+                        if ( dynamicAuthorization("camera") ) {
+                            getpic("camera");
+                        }
+                    } else if ( index == 2 ) {
+                        // 验证相册权限
+                        if ( dynamicAuthorization("photos") ) {
+                            getpic("library");
+                        }
+                    }
+                });
+            },
+            // 提交
+            submitButton: function() {
+                var data = this.getFormDataJson();
+                if ( data.comname == '' ) {
+                    return api.toast({
+                        msg: '请输入产品名称',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.amount == '' ) {
+                    return api.toast({
+                        msg: '请输入最高额度',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.rate == '' ) {
+                    return api.toast({
+                        msg: '请输入利率',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.contact == '' ) {
+                    return api.toast({
+                        msg: '请输入客户经理',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( data.telephone == '' ) {
+                    return api.toast({
+                        msg: '请输入客户经理联系方式',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                if ( $("#qiyeBoxs")[0].checked == false && $("#gerenBoxs")[0].checked == false ) {
+                    return api.toast({
+                        msg: '请选择投放位置',
+                        duration: 2000,
+                        location: 'top'
+                    });
+                }
+                data.token = this.token;
+                data.logoImage = this.logoImage;
+                this.post(data);
+            },
+            // 获取表单数据
+            getFormDataJson:function() {
+                var data = $("#formData").serialize();
+                var list = data.split("&");
+                for (var i = 0; i < list.length; i++ ) {
+                    var kVal = list[i].split("=");
+                    this.fromData[kVal[0]] = kVal[1];
+                }
+                return this.fromData
+            },
+            // 提交
+            post:function(info){
+                this.$http.post(url+'api/login/addunitadd',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        api.toast({
+                            msg: res.body.msg,
+                            duration: 2000,
+                            location: 'middle'
+                        });
+                        //通知列表刷新
+                        var listRefresh = 'listRefresh('+res.body.location+');';
+                        api.execScript({
+                            name: 'addunit_win',
+                            frameName: 'addunit_frm',
+                            script: listRefresh
+                        });
+                    } else {
+                        if( res.body.code == 2 ){
+                            api.alert({
+                              title:'提示',
+                              msg:res.body.msg,
+                            }, function(ret, err) {
+                              api.closeToWin({
+                                  name: 'root'
+                              });
+                            });
+                        } else {
+                          api.toast({
+                              msg: res.body.msg,
+                              duration: 2000,
+                              location: 'middle'
+                          });
+                        }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+            }
+          }
+        });
+    }
+    // 获取图片
+    function getpic(type) {
+        api.getPicture({
+          sourceType: type,
+          encodingType: 'jpg',
+          mediaValue: 'pic',
+          destinationType: 'base64',
+          // destinationType: 'url',
+          allowEdit: true,
+          quality: 100,
+          targetWidth: 100,
+          targetHeight: 100,
+          saveToPhotoAlbum: false
+      }, function(ret, err) {
+          if (ret) {
+            if ( ret.base64Data != "" ) {
+                vm.logoImage = ret.base64Data;
+            } else {
+                vm.logoImage = "../../image/add.png";
+            }
+          } else {
+            vm.logoImage = "../../image/add.png";
+          }
+      });
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

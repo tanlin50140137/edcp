@@ -1,0 +1,10 @@
+html,body,#aui-header{background:#f8f8f8;}
+.aui-title{margin-top:0.8rem;}
+.searchBoxs{margin:0.5rem 0.5rem;}
+.searchInputBoxs{display:flex;align-items:center;flex-wrap:nowrap;width:85%;margin:auto;}
+.searchInputListBoxs:nth-child(1){width:87%;height:1.8rem;background:#FFFFFF;border:1px solid #f78748;}
+.searchInputListBoxs:nth-child(2){width:13%;height:1.8rem;background:#f78748;}
+.searchInputListBoxs #inputsearchBoxs{display:inline-block;padding:0;margin:0;height:1.8rem;text-align:center;}
+input::placeholder{color:#878686;}
+.imgseachBoxs{height:1.8rem;display:flex;border:none;}
+.searchXGBoxg{text-align:center;color:#999999;font-size:0.7rem;}

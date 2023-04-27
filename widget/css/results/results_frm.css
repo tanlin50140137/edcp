@@ -1,0 +1,73 @@
+.alltobaeBoxs{padding:0.5rem 0.5rem;}
+.allImageMaxBoxs{padding:1.5rem 0 0 0;}
+.allImageBoxs{display:flex;align-items:center;flex-wrap:nowrap;width:75%;margin:auto;}
+.allImageListBoxs{width:33.3%;position: relative;}
+.actline{border:1px solid #45a07f;}
+.actline2{border:1px solid #dddddd;}
+.stepBoxs{
+  width:1.2rem;height:1.2rem;border-radius:10rem;
+  position:absolute;top:-0.6rem;left:-0.6rem;
+  text-align: center;line-height: 1.2rem;background:#45a07f;color:#ffffff;
+}
+.stepBoxs2{
+  width:1.2rem;height:1.2rem;border-radius:10rem;
+  position:absolute;top:-0.6rem;left:-0.6rem;
+  text-align: center;line-height: 1.2rem;background:#dddddd;color:#ffffff;
+}
+.step2Boxs{
+  width:1.2rem;height:1.2rem;border-radius:10rem;
+  position:absolute;top:-0.6rem;right:-0.6rem;
+  text-align: center;line-height: 1.2rem;background:#45a07f;color:#ffffff;
+}
+.step2Boxs2{
+  width:1.2rem;height:1.2rem;border-radius:10rem;
+  position:absolute;top:-0.6rem;right:-0.6rem;
+  text-align: center;line-height: 1.2rem;background:#dddddd;color:#ffffff;
+}
+.allTitleBoxs{display:flex;align-items:center;flex-wrap:nowrap;}
+.allTitleListBoxs{position:relative;
+  width:25%;margin-top:1rem;font-size:0.65rem;text-align:center;
+  height:1.5rem;line-height:1.65rem;font-weight:bold;color:#dddddd;
+}
+.actincolor{color:#666666;}
+.action{background:#45a07f;border-radius:0.5rem;color:#ffffff;}
+.kailong{
+	width:0;
+  height:0;
+	border-right:10px solid transparent;
+	border-left:10px solid transparent;
+	border-bottom:10px solid #45a07f;
+  position:absolute;top:-9px;left:50%;margin-left:-10.8px;
+}
+.tishijieBoxs{padding:2.5rem 1rem;margin-top:1.5rem;background:#ffffff;}
+.tishijieBoxs2{padding:1.5rem 1rem;margin-top:1.5rem;background:#ffffff;}
+.tishiinnerBoxs{text-align:center;font-size:0.9rem;}
+.tishiinner2Boxs{text-align:center;margin-top:1rem;font-size:1.8rem;color:#d4987e;font-weight:500;}
+.tishiinner3Boxs{margin-top:1.5rem;color:#959698;}
+.tishiinner4Boxs{text-align:right;padding-top:1rem;color:#959698;position:relative;}
+.tishiButtonBoxs{display:flex;align-items:center;flex-wrap:nowrap;margin:2rem 0;}
+.tishiButtonListBoxs{width:50%;text-align:center;height:2.5rem;line-height:2.5rem;font-weight:bold;}
+.tishiButtonListBoxs:nth-child(1){border: 1px solid #319b75;margin-right:0.5rem;border-radius:0.2rem;color:#319b75;}
+.tishiButtonListBoxs:nth-child(2){margin-left:0.5rem;border-radius:0.2rem;background:#319b75;color:#FFFFFF;}
+.backIndexBoxs{text-align: center;margin-top: 1rem;color:#319b75;font-weight:500;font-size: 1rem;}
+.cradBoxs2{background:#ffffff;padding:0 0.5rem;margin-top:0.5rem;padding:1rem;}
+.wxTiShiBoxs{margin:auto;width:80%;height:40px;background:url(../../image/a.png) no-repeat;background-position:center;background-size:100%;}
+.wxPaiZhaoShiBoxs2{width:auto;margin:0.5rem auto 0 auto;height:auto;overflow:hidden;}
+.wxPaiZhaoShiBoxs{display:flex;flex-wrap:nowrap;}
+.wxPaiZhaoListBoxs2:nth-child(1){width:100%;height:auto;overflow:hidden;margin-right:0.25rem;}
+.wxPaiZhaoListBoxs2:nth-child(2){width:100%;height:auto;overflow:hidden;margin-left:0.25rem;}
+.wxPaiShowBoxs{width:auto;height:auto;max-width:100%;min-height:100%;margin:auto;}
+.shouquanBoxs{display:flex;align-items:center;flex-wrap:nowrap;margin-top:0.5rem;}
+.shouquanListBoxs:nth-child(1){width:28%;color:#666666;}
+.shouquanListBoxs:nth-child(2){width:72%;color:#333333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.updatelistinfoBoxs{border-bottom:1px solid #f6f6f6;margin-top:0.5rem;padding:0.5rem 0;}
+input::placeholder{color:#dddddd;}
+.updateButonBoxs{background:#fb4d4c;height:48px;line-height:48px;text-align:center;border-radius:0.2rem;color:#FFFFFF;}
+.action10{background:#fda2a1;}
+.yishenBoxs{display:flex;align-items:center;flex-wrap:nowrap;margin-bottom:0.5rem;}
+.yishenApplyBoxs{margin-top:0.5rem;}
+.yishenListBoxs:nth-child(1){width:28%;color:#959698;}
+.yishenListBoxs:nth-child(2){width:72%;color:#666666;}
+.passBoxs{position:absolute;top:-1.9rem;right:-0.8rem;width:75px;}
+.wenxintishiBoxs{margin-bottom:0.5rem;color:#f52f1a;}
+.yishenListBoxs font{text-decoration:underline;}

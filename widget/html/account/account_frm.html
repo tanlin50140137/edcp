@@ -1,0 +1,227 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>账号管理</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/account/account_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div id="vueBox" v-cloak>
+  <div class="adminListBoxs">
+      <div v-for="item,index in list">
+        <div class="adminUlBoxs" v-if="item.power == 1">
+            <div class="adminLiBoxs">
+              <img src="../../image/primary.png" alt="头像" class="imgprimary">
+            </div>
+            <div class="adminLiBoxs">{{item.username}}</div>
+            <div class="adminLiBoxs">{{countAcc}}</div>
+            <div class="adminLiBoxs" @click="editaccount(index);">修改</div>
+        </div>
+        <div class="adminUlBoxs action" v-if="item.power == 0">
+            <div class="adminLiBoxs">
+              <img src="../../image/sub.png" alt="头像" class="imgprimary">
+            </div>
+            <div class="adminLiBoxs">{{item.username}}</div>
+            <div class="adminLiBoxs" @click="editaccount(item);">修改</div>
+            <div class="adminLiBoxs" @click="deleteaccount(index);">删除</div>
+        </div>
+      </div>
+      <div class="showDateFlagBoxs" v-if="showDateFlag == 1"></div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm = '';
+    apiready = function () {
+      var winH = $(window).height();
+      $(".showDateFlagBoxs").css({"height": winH+"px"});
+      // 接收页面传参
+      var pageParam = api.pageParam;
+      // 下拉刷新
+      api.setRefreshHeaderInfo({
+          loadingImg: 'widget://image/refresh.png',
+          bgColor: '#F6F6F6',
+          textColor: '#d6d6d6',
+          textDown: '下拉刷新...',
+          textUp: '松开刷新...'
+      }, function(ret, err) {
+          vm.page = 1;
+          vm.list = []
+          vm.postinit();
+      });
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            token:pageParam.token,
+            list:[],
+            page:1,
+            limit:10,
+            count:0,
+            pagetotal:1,
+            showDateFlag:0
+          },
+          methods: {
+            // 修改
+            editaccount:function(item){
+                item.token = this.token;
+                opennewWin2("editaccount_win","../editaccount/editaccount_win.html",item);
+            },
+            //删除
+            deleteaccount:function(index){
+                var id = this.list[index].id;
+                var username = this.list[index].username;
+                var info = {
+                    id: id,
+                    token: this.token
+                };
+                api.confirm({
+                    title: '删除提示',
+                    msg: '是否删除掉名为 “'+username+'” 子账号？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if (index) {
+                      vm.$http.post(url+'api/login/deleteaccount',info,{emulateJSON:true}).then(function(res){
+                          // console.log(JSON.stringify(res.body));
+                          if ( res.body.code == 0 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                              // 刷新
+                              vm.page = 1;
+                              vm.list = []
+                              vm.postinit();
+                          } else {
+                            if ( res.body.code == 2 ) {
+                                api.alert({
+                                  title:'提示',
+                                  msg:res.body.msg,
+                                }, function(ret, err) {
+                                  api.closeToWin({
+                                      name: 'root'
+                                  });
+                                });
+                            } else {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                            }
+                          }
+                      },function(err){
+                            // console.log(JSON.stringify(err));
+                            api.alert({
+                              title:'请求异常提示',
+                              msg:err
+                            });
+                      });
+                    }
+                });
+            },
+            // 获取账号列表
+            postinit:function(){
+                var info = {
+                    token: this.token,
+                    page: this.page,
+                    limit: this.limit
+                };
+                this.$http.post(url+'api/login/information_page',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    if ( res.body.code == 0 ) {
+                        this.showDateFlag = 0;
+                        this.count = res.body.count;
+                        this.pagetotal = res.body.pagetotal;
+                        this.countAcc = res.body.count_acc
+                        var a = [];
+                        for (var i = 0; i < this.list.length; i++) {
+                            a.push(this.list[i]);
+                        }
+                        for (var i = 0; i < res.body.data.length; i++) {
+                            a.push(res.body.data[i]);
+                        }
+                        this.list = a;
+                    } else {
+                      this.showDateFlag = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.countAcc = 0
+                      this.list = []
+                      if ( res.body.code == 2 ) {
+                          api.alert({
+                            title:'提示',
+                            msg:res.body.msg,
+                          }, function(ret, err) {
+                            api.closeToWin({
+                                name: 'root'
+                            });
+                          });
+                      } else {
+                        api.toast({
+                            msg: res.body.msg,
+                            duration: 2000,
+                            location: 'middle'
+                        });
+                      }
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      this.showDateFlag = 1;
+                      this.count = 0;
+                      this.pagetotal = 1;
+                      this.countAcc = 0
+                      this.list = []
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+                api.refreshHeaderLoadDone();
+            }
+          }
+        });
+        vm.postinit();
+        // 页面是否滚动到底部
+        api.addEventListener({
+            name:'scrolltobottom',
+            extra:{
+                threshold:0            //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err){
+            vm.page += 1
+            if ( vm.page <= vm.pagetotal ) {
+                vm.postinit();
+            }
+        });
+    }
+    // 刷新列表
+    function listRefresh() {
+        // 刷新列表
+        vm.page = 1;
+        vm.list = []
+        vm.postinit();
+        // 关闭添加界面
+        setTimeout(function(){
+          api.closeWin({name:"addaccount_win"});
+        }, 500);
+        // 关闭添加界面
+        setTimeout(function(){
+          api.closeWin({name:"editaccount_win"});
+        }, 500);
+    }
+</script>
+</html>

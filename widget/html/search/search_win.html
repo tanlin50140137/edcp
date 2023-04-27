@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/search/search_win.css" />
+</head>
+<body>
+  <header class="aui-bar aui-bar-nav" id="aui-header">
+      <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
+          <span class="aui-iconfont aui-icon-left" style="color:#333333;font-weight:blod;"></span>
+      </a>
+      <div style="position:relative;">
+        <div class="aui-title" style="color:#333333;"><b>查询测评结果</b></div>
+      </div>
+  </header>
+  <div id="vueBox">
+    <div class="searchBoxs">
+      <div class="searchInputBoxs">
+        <div class="searchInputListBoxs">
+            <input type="number" v-model="search" placeholder="请输入手机号码" id="inputsearchBoxs"/>
+        </div>
+        <div class="searchInputListBoxs" @click="seachInfo();">
+          <img src="../../image/seach.png" alt="搜索" class="imgseachBoxs"/>
+        </div>
+      </div>
+    </div>
+    <div class="searchXGBoxg" v-if="count==0">{{searchtext}}</div>
+    <div class="searchXGBoxg" v-if="count>0" style="color:#f78748;">{{searchtext}}</div>
+  </div>
+  <footer></footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script type="text/javascript">
+    var vm,header,headerPos,body_h;
+    apiready = function(){
+        api.parseTapmode();
+        header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        headerPos = $api.offset(header);
+        body_h = $api.offset($api.dom('body')).h;
+        api.openFrame({
+            name: 'search_frm',
+            url: 'search_frm.html',
+            bounces: true,
+            rect: {
+                x: 0,
+                y: headerPos.h+82,
+                w: 'auto',
+                h: 'auto'
+            }
+        });
+        vm = new Vue({
+            el: '#vueBox',
+            data: {
+              search:"",
+              count:0,
+              searchtext:"请使用手机号码查询测评结果"
+            },
+            methods: {
+                seachInfo:function(){
+                    if ( this.search == "" ) {
+                        return api.toast({
+                            msg: '请输入手机号码',
+                            duration: 2000,
+                            location: 'bottom'
+                        });
+                    }
+                    if ( this.search.length != 11 ) {
+                        return api.toast({
+                            msg: '您输入的手机号码有误',
+                            duration: 2000,
+                            location: 'bottom'
+                        });
+                    }
+                    // 下发到frm页
+                    var seachInfo = 'seachInfo("'+this.search+'");';
+                    api.execScript({
+                        frameName: 'search_frm',
+                        script: seachInfo
+                    });
+                }
+            }
+        });
+    };
+    // 搜索统计
+    function statistics(count) {
+        vm.count = count;
+        vm.searchtext = "搜索到 "+count+" 条相关信息";
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

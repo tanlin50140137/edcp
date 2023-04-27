@@ -1,0 +1,13 @@
+.adminGuanLiBoxs{}
+.userInfoBoxs{padding:0 0.5rem;color:#999999;padding:0.5rem;}
+.chaojigualiBoxs{float:right;}
+.adminCardBoxs{background:#ffffff;padding:0.5rem;}
+.adminCardTitileBoxs{height:22px;width:80%;margin:0.6rem auto 0.6rem auto;
+  background:url(../../image/a_1.png) no-repeat;background-position:center;background-size:100%;
+}
+.adminCardButtonBoxs{display:flex;align-items:center;flex-wrap:wrap;width:90%;margin:0.8rem auto 0.8rem auto;}
+.adminCardListBoxs{width:33.3%;height:5rem;padding:0.25rem;position:relative;}
+.addhuodaiBoxs{width:50px;height:50px;margin:auto;}
+.addhuodaiTitleBoxs{text-align: center;color:#666666;margin-top:0.1rem;font-size:0.7rem;}
+.adminCardInnerBoxs{border:1px solid #F6F6F6;padding:0.25rem;border-radius:0.2rem;background:#F6F6F6;}
+.redDotBoxs{border:1px solid red;background:red;color:#ffffff;position:absolute;top:0;right:0;border-radius:100%;font-size:0.6rem;padding:0.05rem 0.3rem 0 0.3rem;text-align:center;}

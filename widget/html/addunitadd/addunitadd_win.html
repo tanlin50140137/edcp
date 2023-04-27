@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/addaccount/addaccount_win.css" />
+</head>
+<body>
+  <header class="aui-bar aui-bar-nav" id="aui-header">
+      <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
+          <span class="aui-iconfont aui-icon-left" style="color:#333333;font-weight:blod;"></span>
+      </a>
+      <div id="vueBox" style="position:relative;">
+        <div class="aui-title" style="color:#333333;"><b>添加产品</b></div>
+      </div>
+  </header>
+  <footer></footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script type="text/javascript">
+    var header,headerPos,body_h;
+    apiready = function(){
+        api.parseTapmode();
+        header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        headerPos = $api.offset(header);
+        body_h = $api.offset($api.dom('body')).h;
+        api.openFrame({
+            name: 'addunitadd_frm',
+            url: 'addunitadd_frm.html',
+            bounces: false,
+            rect: {
+                x: 0,
+                y: headerPos.h+5,
+                w: 'auto',
+                h: 'auto'
+            },
+            pageParam: api.pageParam
+        });
+    };
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>

@@ -1,0 +1,14 @@
+html, #aui-header{background: #f8f8f8;}
+.aui-title{margin-top:0.8rem;position: relative;}
+.guanliBoxs{position: absolute;top:0;right:0.8rem;font-size:0.8rem;}
+.navigationBoxs{position:relative;}
+.navigationInnerBoxs{position:absolute;bottom:0;left:0;padding:0 0.5rem;}
+.navigationUiBoxs{display:flex;flex-wrap:nowrap;align-items:center;}
+.navigationLiBoxs{width:50%;color:#999999;}
+.navigationLiBoxs:nth-child(1){}
+.navigationLiBoxs:nth-child(2){margin-left:1rem;}
+.navigationLiact_1{color:#000000;font-weight:bold;}
+.slipperyBoxs{margin-top:0.5rem;position:relative;}
+.slipperyInnerBoxs{border:2px solid #ed968b;width:34%;margin:0 0.25rem;border-radius:0.5rem;position:absolute;top:0;left:0;}
+.queryBoxs{position:absolute;bottom:0.3rem;right:3.5rem;border-radius:0.3rem;padding:0.2rem 0.5rem;color:#666666;}
+.querySearchBoxs{display:inline-block;width:18px;height:18px;position:relative;top:0.1rem;border:none;}

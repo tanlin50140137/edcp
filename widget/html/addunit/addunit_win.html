@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/addunit/addunit_win.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+    <header class="aui-bar" id="aui-header">
+        <div class="aui-title" style="position:relative;">
+          <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()" style="position:absolute;top:0;left:0.5rem;background:#f8f8f8;">
+              <span class="aui-iconfont aui-icon-left" style="color:#333333;font-weight:blod;"></span>
+          </a>
+          <b>产品管理</b>
+          <font class="guanliBoxs addAccountBoxs" onclick="addunitadd();">添加产品</font>
+        </div>
+        <div class="navigationBoxs">
+          <div class="navigationInnerBoxs">
+              <div class="navigationUiBoxs" id="vueBox" v-cloak>
+                  <div class="navigationLiBoxs navigationLiact_1" onclick="navigatio(0);">企业贷<font class="fontnaomalBoxs">({{count_1}})</font></div>
+                  <div class="navigationLiBoxs" onclick="navigatio(1);">个人贷<font class="fontnaomalBoxs">({{count_2}})</font></div>
+              </div>
+              <div class="slipperyBoxs">
+                <div class="slipperyInnerBoxs"></div>
+              </div>
+          </div>
+        </div>
+    </header>
+    <footer></footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var header,headerPos,vm;
+    apiready = function(){
+        api.parseTapmode();
+        header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        headerPos = $api.offset(header);
+        body_h = $api.offset($api.dom('body')).h;
+        footer_h = 0
+        var auiTitle = $(".aui-title").height();
+        $(".navigationBoxs").css({"height":((headerPos.h+25)-auiTitle)+"px"});
+        api.openFrame({
+            name: 'addunit_frm',
+            url: 'addunit_frm.html',
+            bounces: true,
+            overScrollMode:"scrolls",
+            rect: {
+                x: 0,
+                y: headerPos.h+90,
+                w: 'auto',
+                h: 'auto'
+            },
+            pageParam:api.pageParam
+        });
+        // 监听子页面
+        api.addEventListener({
+            name: 'addunit_win'
+        }, function(ret, err) {
+            // 监听到子窗口滑动时触发
+            subWindowHasSlid(ret.value.activeIndex);
+        });
+        // 列表
+        vm = new Vue({
+            el: '#vueBox',
+            data: {
+              token:api.pageParam.token,
+              count_1:0,
+              count_2:0
+            },
+            methods: {
+                initpost:function(){
+                    var info = {
+                        token:this.token
+                    };
+                    this.$http.post(url+'api/product/productwincount', info, {emulateJSON:true}).then(function(res){
+                        this.count_1 = res.body.count_1;
+                        this.count_2 = res.body.count_2;
+                    },function(err){
+                          // console.log(JSON.stringify(err));
+                          api.alert({
+                            title:'请求异常提示',
+                            msg:err
+                          });
+                    });
+                }
+            }
+        });
+        vm.initpost();
+    };
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+    //　点击导航条
+    function navigatio(i) {
+        $(".navigationLiBoxs").removeClass("navigationLiact_1");
+        $(".navigationLiBoxs").eq(i).addClass("navigationLiact_1");
+        // 滑动块
+        if(i == 1) {
+            var wBox = $(".slipperyBoxs").width()
+            var wChild = $(".slipperyInnerBoxs").width()
+            var juli = (wBox - wChild) - 14;
+            $(".slipperyInnerBoxs").animate({left:juli+"px"}, 200);
+            // 执行子窗口函数
+            var navigatio2 = 'navigatio2();';
+            api.execScript({
+                  frameName: 'addunit_frm',
+                  script: navigatio2
+            });
+        } else if (i == 0) {
+            $(".slipperyInnerBoxs").animate({left:"0"}, 200);
+            // 执行子窗口函数
+            var navigatio1 = 'navigatio1();';
+            api.execScript({
+                  frameName: 'addunit_frm',
+                  script: navigatio1
+            });
+        }
+    }
+    // 监听子窗口滑动了
+    function subWindowHasSlid(activeIndex) {
+        $(".navigationLiBoxs").removeClass("navigationLiact_1");
+        $(".navigationLiBoxs").eq(activeIndex).addClass("navigationLiact_1");
+        if( activeIndex == 0 ){
+            $(".slipperyInnerBoxs").animate({left:"0"}, 200);
+        } else if ( activeIndex == 1 ) {
+            var wBox = $(".slipperyBoxs").width()
+            var wChild = $(".slipperyInnerBoxs").width()
+            var juli = (wBox - wChild) - 14;
+            $(".slipperyInnerBoxs").animate({left:juli+"px"}, 200);
+        }
+    }
+    // 管理登录
+    function addunitadd() {
+      opennewWin2("addunitadd_win","../addunitadd/addunitadd_win.html", api.pageParam)
+    }
+    // 刷新
+    function refreshwin() {
+      vm.initpost();
+    }
+</script>
+</html>

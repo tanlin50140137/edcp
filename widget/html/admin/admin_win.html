@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/admin/admin_win.css" />
+</head>
+<body>
+  <header class="aui-bar aui-bar-nav" id="aui-header">
+      <a class="aui-btn aui-pull-left" tapmode onclick="closeWin()">
+          <span class="aui-iconfont aui-icon-left" style="color:#333333;font-weight:blod;"></span>
+      </a>
+      <div id="vueBox">
+        <div class="aui-title" style="color:#333333;"><b>额度测试后台管理</b></div>
+      </div>
+  </header>
+  <footer></footer>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script type="text/javascript">
+    var header,headerPos,body_h;
+    apiready = function(){
+        // 关闭掉登录界面
+        // setTimeout(function(){
+        //   api.closeWin({name:"login_win"});
+        // }, 600);
+        // 打开内容页
+        api.parseTapmode();
+        header = $api.byId('aui-header');
+        $api.fixStatusBar(header);
+        headerPos = $api.offset(header);
+        body_h = $api.offset($api.dom('body')).h;
+        api.openFrame({
+            name: 'admin_frm',
+            url: 'admin_frm.html',
+            bounces: false,
+            overScrollMode:"scrolls",
+            rect: {
+                x: 0,
+                y: headerPos.h+5,
+                w: 'auto',
+                h: 'auto'
+            },
+            pageParam: api.pageParam
+        });
+        // back 键被点击事件
+        api.addEventListener({
+            name: 'keyback',
+            extra:{
+                slidBackIntercept:false    //打开页面时若 slidBackType 参数为 edge，可通过此参数设置是否拦截页面右滑返回，只 iOS 有效，默认值为 false，布尔类型
+            }
+        }, function(ret, err) {
+            closeWin();
+        });
+    };
+    // 关闭窗口函数
+    function closeWin(){
+        api.confirm({
+            title: '退出提示',
+            msg: '是否要退出管理后台？',
+            buttons: ['确定', '取消']
+        }, function(ret, err) {
+            var index = ret.buttonIndex;
+            if ( index == 1 ) {
+                api.closeToWin({
+                    name:'root'
+                });
+            }
+        });
+    }
+</script>
+</html>

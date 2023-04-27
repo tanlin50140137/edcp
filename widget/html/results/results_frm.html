@@ -1,0 +1,593 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>精准测评</title>
+    <link rel="stylesheet" type="text/css" href="../../css/aui.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/results/results_frm.css" />
+    <style type="text/css">
+        [v-cloak]{display:none}
+    </style>
+</head>
+<body>
+<div class="alltobaeBoxs" id="vueBox" v-cloak>
+  <div class="allImageMaxBoxs">
+    <div class="allImageBoxs">
+        <div :class="[allImageListBoxs,kailongFlag>=1?actline:'actline2']">
+          <div :class="[kailongFlag>=0?stepBoxs:'stepBoxs2']" @click="step(0)">1</div>
+        </div>
+        <div :class="[allImageListBoxs,kailongFlag>=2?actline:'actline2']">
+          <div :class="[kailongFlag>=1?stepBoxs:'stepBoxs2']" @click="step(1)">2</div>
+        </div>
+        <div :class="[allImageListBoxs,kailongFlag>=3?actline:'actline2']">
+          <div :class="[kailongFlag>=2?stepBoxs:'stepBoxs2']" v-if="exa==0||exa==2">3</div>
+          <div :class="[kailongFlag>=2?stepBoxs:'stepBoxs2']" v-if="exa==1" @click="step(2)">3</div>
+
+          <div :class="[kailongFlag>=3?step2Boxs:'step2Boxs2']" v-if="exa==0||exa==2">4</div>
+          <div :class="[kailongFlag>=3?step2Boxs:'step2Boxs2']" v-if="exa==1" @click="step(3)">4</div>
+        </div>
+    </div>
+    <div class="allTitleBoxs">
+        <div :class="[allTitleListBoxs, kailongFlag>=0?actincolor:'', kailongFlag==0?action:'']"  @click="step(0)">
+          <div class="kailong" v-if="kailongFlag==0"></div>
+          信息授权
+        </div>
+        <div :class="[allTitleListBoxs, kailongFlag>=1?actincolor:'', kailongFlag==1?action:'']"  @click="step(1)">
+          <div class="kailong" v-if="kailongFlag==1"></div>
+          测评中
+        </div>
+        <div :class="[allTitleListBoxs, kailongFlag>=2?actincolor:'', kailongFlag==2?action:'']" v-if="exa==0||exa==2">
+          <div class="kailong" v-if="kailongFlag==2"></div>
+          {{step_3}}
+        </div>
+        <div :class="[allTitleListBoxs, kailongFlag>=2?actincolor:'', kailongFlag==2?action:'']" v-if="exa==1" @click="step(2)">
+          <div class="kailong" v-if="kailongFlag==2"></div>
+          {{step_3}}
+        </div>
+        <div :class="[allTitleListBoxs, kailongFlag>=3?actincolor:'', kailongFlag==3?action:'']" v-if="exa==0||exa==2">
+          <div class="kailong" v-if="kailongFlag==3"></div>
+          {{step_4}}
+        </div>
+        <div :class="[allTitleListBoxs, kailongFlag>=3?actincolor:'', kailongFlag==3?action:'']" v-if="exa==1" @click="step(3)">
+          <div class="kailong" v-if="kailongFlag==3"></div>
+          {{step_4}}
+        </div>
+    </div>
+  </div>
+  <div v-if="kailongFlag==0">
+    <div class="tishijieBoxs2">
+        <div class="shouquanBoxs">
+            <div class="shouquanListBoxs">测评性质</div>
+            <div class="shouquanListBoxs">{{list.location==1?"企业贷":"个人贷"}}</div>
+        </div>
+        <div class="shouquanBoxs">
+            <div class="shouquanListBoxs">{{list.location==1?"企业名称":"您的姓名"}}</div>
+            <div class="shouquanListBoxs">{{list.name}}</div>
+        </div>
+        <div class="shouquanBoxs">
+            <div class="shouquanListBoxs">{{list.location==1?"证件号码":"身份证号"}}</div>
+            <div class="shouquanListBoxs">{{list.credential}}</div>
+        </div>
+        <div class="cradBoxs2">
+          <div class="wxPaiZhaoShiBoxs" v-if="list.location==1">
+            <div class="wxPaiZhaoListBoxs2">
+                <img class="wxPaiShowBoxs" :src="prove1" alt="上传证件" />
+            </div>
+          </div>
+          <div class="wxPaiZhaoShiBoxs" v-if="list.location==2">
+            <div class="wxPaiZhaoListBoxs2">
+                <img class="wxPaiShowBoxs" :src="prove1" alt="上传证件" />
+            </div>
+            <div class="wxPaiZhaoListBoxs2">
+                <img class="wxPaiShowBoxs" :src="prove2" alt="上传证件" />
+            </div>
+          </div>
+        </div>
+        <div class="tishiinner4Boxs">提交时间：{{checkTime}}</div>
+    </div>
+  </div>
+  <div v-if="kailongFlag==1">
+    <div class="tishijieBoxs2">
+        <div style="color:red;" v-if="exa==0">正在测评中请您耐心等待...</div>
+        <div style="color:#83c524;" v-if="exa==1">恭喜您！信息授权已通过，额度测评成功，请点击步骤3、4查看测评结果。</div>
+        <div v-if="exa==2">
+            <div style="color:#333333;">信息授权不合格问题反馈：</div>
+            <div style="color:red;">{{list.cause}}</div>
+            <div class="updatelistinfoBoxs">可修改重新上传：</div>
+            <div class="shouquanBoxs">
+                <div class="shouquanListBoxs">{{list.location==1?"企业名称":"您的姓名"}}</div>
+                <div class="shouquanListBoxs">
+                  <input type="text" name="name" v-model="name" placeholder="请输入名称" class="inputListBoxs"/>
+                </div>
+            </div>
+            <div class="shouquanBoxs">
+                <div class="shouquanListBoxs">{{list.location==1?"证件号码":"身份证号"}}</div>
+                <div class="shouquanListBoxs">
+                  <input type="text" name="credential" v-model="credential" placeholder="请输入证件号码" class="inputListBoxs"/>
+                </div>
+            </div>
+            <div class="cradBoxs2">
+              <div class="wxPaiZhaoShiBoxs" v-if="list.location==1">
+                <div class="wxPaiZhaoListBoxs2" @click="uploadDocument(0);">
+                    <img class="wxPaiShowBoxs" :src="prove1" alt="上传证件" />
+                </div>
+              </div>
+              <div class="wxPaiZhaoShiBoxs" v-if="list.location==2">
+                <div class="wxPaiZhaoListBoxs2" @click="uploadDocument(1);">
+                    <img class="wxPaiShowBoxs" :src="prove1" alt="上传证件" />
+                </div>
+                <div class="wxPaiZhaoListBoxs2" @click="uploadDocument(2);">
+                    <img class="wxPaiShowBoxs" :src="prove2" alt="上传证件" />
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom:0.5rem;color:#666666;">提示：点击图片修改</div>
+            <div class="updateButonBoxs" @click="updateData();">修改</div>
+        </div>
+        <div class="tishiinner4Boxs" v-if="exa==0||exa==1">提交时间：{{checkTime}}</div>
+        <div class="tishiinner4Boxs" v-if="exa==2">上次时间：{{checkTime}}</div>
+    </div>
+  </div>
+  <div v-if="kailongFlag==2">
+    <div class="tishijieBoxs">
+        <div class="tishiinnerBoxs">您在我行的授信额度测算结果为({{getDanWei(list.d_amount)}})</div>
+        <div class="tishiinner2Boxs">{{d_amount}}</div>
+        <div class="tishiinner3Boxs">
+          以上仅供参考，实际货款额度以签约为准，如有疑问，请联系你的客户经理。（注意：再次测评，测评结果可能因数据变化而改变）
+        </div>
+        <div class="yishenApplyBoxs" v-if="list.applystype==1">
+          <div class="wenxintishiBoxs">温馨提示：请尽快联系您的客户经理办理</div>
+          <div class="yishenBoxs">
+              <div class="yishenListBoxs">客户经理：</div>
+              <div class="yishenListBoxs">{{list.contact}}</div>
+          </div>
+          <div class="yishenBoxs">
+              <div class="yishenListBoxs">联系方式：</div>
+              <div class="yishenListBoxs" @click="calling(list.telephone);">
+                <font>{{list.telephone}} 点击拨打</font>
+              </div>
+          </div>
+        </div>
+        <div class="tishiinner4Boxs">
+          <font v-if="list.applystype==1">申请时间：{{checkTime}}</font>
+          <font v-else>测评时间：{{checkTime}}</font>
+          <img v-if="list.applystype==1" src="../../image/pass.png" class="passBoxs"/>
+        </div>
+    </div>
+    <div class="tishiButtonBoxs" v-if="applystate == 0">
+      <div class="tishiButtonListBoxs" @click="reEvaluation();">再次测评</div>
+      <div class="tishiButtonListBoxs" @click="applynow();">立即申请</div>
+    </div>
+    <div class="backIndexBoxs" @click="homepage();">返回贷款首页</div>
+  </div>
+  <div v-if="kailongFlag==3">
+    <div class="tishijieBoxs">
+        <div class="tishiinnerBoxs">您在我行的授信额度测算结果为({{getDanWei(list.e_amount)}})</div>
+        <div class="tishiinner2Boxs">{{e_amount}}</div>
+        <div class="tishiinner3Boxs">
+          以上仅供参考，实际货款额度以签约为准，如有疑问，请联系你的客户经理。（注意：再次测评，测评结果可能因数据变化而改变）
+        </div>
+        <div class="yishenApplyBoxs" v-if="list.applystype==2">
+          <div class="wenxintishiBoxs">温馨提示：请尽快联系您的客户经理办理</div>
+          <div class="yishenBoxs">
+              <div class="yishenListBoxs">客户经理：</div>
+              <div class="yishenListBoxs">{{list.contact}}</div>
+          </div>
+          <div class="yishenBoxs">
+              <div class="yishenListBoxs">联系方式：</div>
+              <div class="yishenListBoxs" @click="calling(list.telephone);">
+                <font>{{list.telephone}} <font color="red">点击拨打</font></font>
+              </div>
+          </div>
+        </div>
+        <div class="tishiinner4Boxs">
+          <font v-if="list.applystype==2">申请时间：{{checkTime}}</font>
+          <font v-else>测评时间：{{checkTime}}</font>
+          <img v-if="list.applystype==2" src="../../image/pass.png" class="passBoxs"/>
+        </div>
+    </div>
+    <div class="tishiButtonBoxs" v-if="applystate == 0">
+      <div class="tishiButtonListBoxs" @click="reEvaluation();">再次测评</div>
+      <div class="tishiButtonListBoxs" @click="applynow();">立即申请</div>
+    </div>
+    <div class="backIndexBoxs" @click="homepage();">返回贷款首页</div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../../script/api.js" ></script>
+<script src="../../script/vue-js/vue.min.js"></script>
+<script src="../../script/vue-js/vue-resource.min.js"></script>
+<script src="../../script/vue-js/jquery.min.js"></script>
+<script src="../../script/vue-js/common.js"></script>
+<script type="text/javascript">
+    var vm='',pageParam="";
+    apiready = function () {
+      // 接收页面传参
+      pageParam = api.pageParam;
+      // console.log(JSON.stringify(pageParam));
+      // 启用vue前端框架
+      vm = new Vue({
+          el: '#vueBox',
+          data: {
+            kailongFlag:0,
+            kailong:"kailong",
+            actline:"actline",
+            stepBoxs:"stepBoxs",
+            step2Boxs:"step2Boxs",
+            actincolor:"actincolor",
+            allImageListBoxs:"allImageListBoxs",
+            allTitleListBoxs:"allTitleListBoxs",
+            action:"action",
+            list:pageParam,
+            exa:pageParam.exa,
+            checkTime:'',
+            prove1:"",
+            prove2:"",
+            selctIndex:0,
+            applystate:0,
+            credential:"",
+            name:"",
+            d_amount:0,  // 基本测评金额
+            e_amount:0,    // 加强测评金额
+            step_3:"基本测评结果",
+            step_4:"加强测评结果"
+          },
+          methods: {
+              // 初始化
+              initpost:function(){
+                var info = {
+                    id:pageParam.id
+                };
+                vm.$http.post(url+'api/admin/resultsapplynow',info,{emulateJSON:true}).then(function(res){
+                    // console.log(JSON.stringify(res.body));
+                    api.hideProgress();
+                    if ( res.body.code == 0 ) {
+                      vm.list = res.body.data;
+                      vm.credential= vm.list.credential;
+                      vm.name = vm.list.name;
+                      vm.exa = vm.list.exa;
+                      vm.applystate = vm.list.applystate;
+                      vm.e_amount = vm.getAmount(vm.list.e_amount);
+                      vm.d_amount = vm.getAmount(vm.list.d_amount);
+                      var a0 = vm.list.addTime.split(' ');
+                      vm.checkTime = a0[0];
+                      // 步骤
+                      if( vm.list.exa == 1 ){
+                          vm.kailongFlag = 3;
+                      } else if( vm.list.exa == 0 || vm.list.exa == 2 ) {
+                          vm.kailongFlag = 1;
+                      }
+                      // 立即申请
+                      if ( vm.list.applystype == 1 ) {
+                          vm.step_3 = "已申请";
+                          vm.kailongFlag = 2;
+                      } else if ( vm.list.applystype == 2 ) {
+                          vm.step_4 = "已申请";
+                      } else if ( vm.list.applystype == 0 ) {
+                          vm.step_3 = "基本测评结果";
+                          vm.step_4 = "加强测评结果";
+                      }
+                      // 性质
+                      if( vm.list.location == 1 ) {
+                          vm.prove1 = url+vm.list.prove1;
+                      } else if( vm.list.location == 2 ) {
+                          vm.prove1 = url+vm.list.prove1;
+                          vm.prove2 = url+vm.list.prove2;
+                      }
+                    } else {
+                      api.toast({
+                          msg: res.body.msg,
+                          duration: 2000,
+                          location: 'middle'
+                      });
+                    }
+                },function(err){
+                      // console.log(JSON.stringify(err));
+                      api.hideProgress();
+                      api.alert({
+                        title:'请求异常提示',
+                        msg:err
+                      });
+                });
+              },
+              // 拨打电话
+              calling:function(tel){
+                  if ( dynamicAuthorization("phone") ) {
+                      api.call({
+                          type: 'tel_prompt',
+                          number: tel
+                      });
+                  }
+              },
+              // 立即申请
+              applynow:function(){
+                var type = 0;
+                var flag = "";
+                // 基本测评
+                if ( this.kailongFlag == 2 ) {
+                    type = 1;
+                    flag = "当前“基本”测评结果额度";
+                }
+                // 加强测评
+                else if ( this.kailongFlag == 3 ) {
+                    type = 2;
+                    flag = "当前“加强”测评结果额度";
+                }
+                api.confirm({
+                    title: '提示',
+                    msg: '您是否立即申请'+flag+'？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                        var info = {
+                            id: pageParam.id,
+                            applystype: type
+                        };
+                        // 立即申请
+                        vm.$http.post(url+'api/admin/applynow',info,{emulateJSON:true}).then(function(res){
+                            // console.log(JSON.stringify(res.body));
+                            api.hideProgress();
+                            if ( res.body.code == 0 ) {
+                                api.toast({
+                                    msg: res.body.msg,
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                vm.initpost();
+                                // vm.applystate = 1;
+                            } else {
+                                if( res.body.code == 2 ){
+                                    api.alert({
+                                      title:'提示',
+                                      msg:res.body.msg,
+                                    });
+                                } else {
+                                  api.toast({
+                                      msg: res.body.msg,
+                                      duration: 2000,
+                                      location: 'middle'
+                                  });
+                                }
+                            }
+                        },function(err){
+                              // console.log(JSON.stringify(err));
+                              api.hideProgress();
+                              api.alert({
+                                title:'请求异常提示',
+                                msg:err
+                              });
+                        });
+                    }
+                });
+              },
+              // 返回首页
+              homepage:function(){
+                api.confirm({
+                    title: '提示',
+                    msg: '是否返回贷款首页？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                      api.closeToWin({
+                          name: 'root'
+                      });
+                    }
+                  });
+              },
+              // 再次测评
+              reEvaluation:function(){
+                api.confirm({
+                    title: '提示',
+                    msg: '您是否想再次测评？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if ( index == 1 ) {
+                      var info = {
+                          id: pageParam.id,
+                      };
+                      api.showProgress({
+                          title: '正在提交',
+                          text: '请稍后...',
+                          modal: false
+                      });
+                      // 重新上传
+                      vm.$http.post(url+'api/admin/reevaluation',info,{emulateJSON:true}).then(function(res){
+                          // console.log(JSON.stringify(res.body));
+                          api.hideProgress();
+                          if ( res.body.code == 0 ) {
+                              api.toast({
+                                  msg: res.body.msg,
+                                  duration: 2000,
+                                  location: 'middle'
+                              });
+                              vm.initpost();
+                          } else {
+                              if( res.body.code == 2 ){
+                                  api.alert({
+                                    title:'提示',
+                                    msg:res.body.msg,
+                                  });
+                              } else {
+                                api.toast({
+                                    msg: res.body.msg,
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                              }
+                          }
+                      },function(err){
+                            // console.log(JSON.stringify(err));
+                            api.hideProgress();
+                            api.alert({
+                              title:'请求异常提示',
+                              msg:err
+                            });
+                      });
+                    }
+                });
+              },
+              // 修改
+              updateData:function(){
+                  api.confirm({
+                      title: '修改提示',
+                      msg: '是否现在提交修改？',
+                      buttons: ['确定', '取消']
+                  }, function(ret, err) {
+                      var index = ret.buttonIndex;
+                      if ( index == 1 ) {
+                          if ( vm.name == "" ) {
+                              return api.toast({
+                                  msg: '请输入名称',
+                                  duration: 2000,
+                                  location: 'bottom'
+                              });
+                          }
+                          if ( vm.credential == "" ) {
+                              return api.toast({
+                                  msg: '请输入证件号码',
+                                  duration: 2000,
+                                  location: 'bottom'
+                              });
+                          }
+                          // 企业
+                          if( pageParam.location == 1 ) {
+                              var info = {
+                                  id: pageParam.id,
+                                  name: vm.name,
+                                  location: pageParam.location,
+                                  credential: vm.credential,
+                                  prove1: vm.prove1
+                              };
+                          }
+                          // 个人
+                          else if( pageParam.location == 2 ) {
+                              var info = {
+                                  id: pageParam.id,
+                                  name: vm.name,
+                                  credential: vm.credential,
+                                  location: pageParam.location,
+                                  prove1: vm.prove1,
+                                  prove2: vm.prove2
+                              };
+                          }
+                          api.showProgress({
+                              title: '正在提交',
+                              text: '请稍后...',
+                              modal: false
+                          });
+                          // 重新上传
+                          vm.$http.post(url+'api/admin/updateresults',info,{emulateJSON:true}).then(function(res){
+                              // console.log(JSON.stringify(res.body));
+                              api.hideProgress();
+                              if ( res.body.code == 0 ) {
+                                  api.toast({
+                                      msg: res.body.msg,
+                                      duration: 2000,
+                                      location: 'middle'
+                                  });
+                                  // vm.exa = 0;
+                                  vm.initpost();
+                              } else {
+                                  if( res.body.code == 2 ){
+                                      api.alert({
+                                        title:'提示',
+                                        msg:res.body.msg,
+                                      });
+                                  } else {
+                                    api.toast({
+                                        msg: res.body.msg,
+                                        duration: 2000,
+                                        location: 'middle'
+                                    });
+                                  }
+                              }
+                          },function(err){
+                                // console.log(JSON.stringify(err));
+                                api.hideProgress();
+                                api.alert({
+                                  title:'请求异常提示',
+                                  msg:err
+                                });
+                          });
+                      }
+                  });
+              },
+              // 上传图片
+              uploadDocument:function(index){
+                  this.selctIndex = index;
+                  // 选择列表
+                  api.actionSheet({
+                      cancelTitle: '取消',
+                      buttons: ['拍照','相册']
+                  }, function(ret, err) {
+                      var index = ret.buttonIndex;
+                      if ( index == 1 ) {
+                          // 验证相机权限
+                          if ( dynamicAuthorization("camera") ) {
+                              updateImage("camera");
+                          }
+                      } else if ( index == 2 ) {
+                          // 验证相册权限
+                          if ( dynamicAuthorization("photos") ) {
+                              updateImage("library");
+                          }
+                      }
+                  });
+              },
+              // 步骤
+              step:function(index){
+                  this.kailongFlag = index;
+              },
+              // 获取单位
+              getDanWei:function(a0){
+                  var b0 = a0.split("");
+                  return b0[b0.length-1];
+              },
+              // 获取金额
+              getAmount:function(a0){
+                  var b0 = a0.split("");
+                      b0.pop()
+                  return b0.join("");
+              }
+          }
+        });
+        vm.initpost();
+    }
+    // 上传图片
+    function updateImage(type) {
+      api.getPicture({
+        sourceType: type,
+        encodingType: 'jpg',
+        mediaValue: 'pic',
+        destinationType: 'base64',
+        // destinationType: 'url',
+        allowEdit: true,
+        quality: 100,
+        targetWidth: 640,
+        targetHeight: 480,
+        saveToPhotoAlbum: false
+      }, function(ret, err) {
+          if (ret) {
+            if ( ret.base64Data != "" ) {
+                if ( vm.selctIndex == 0 ) {
+                    vm.prove1 = ret.base64Data;
+                } else if( vm.selctIndex == 1 ) {
+                    vm.prove1 = ret.base64Data;
+                } else if( vm.selctIndex == 2 ) {
+                    vm.prove2 = ret.base64Data;
+                }
+            }
+          }
+      });
+    }
+    // 关闭窗口函数
+    function closeWin(){
+        api.closeWin({});
+    }
+</script>
+</html>
