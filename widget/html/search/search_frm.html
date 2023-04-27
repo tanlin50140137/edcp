@@ -19,10 +19,15 @@
         <div class="cepingListBoxs" style="text-align:right;color:#f78748;">{{item.location==1?"企业贷":"个人贷"}}</div>
       </div>
       <div class="cepingComnameBoxs">产品名称：{{item.comname}}<br/>最高金额：{{item.amount}}<br/>产品利率：{{item.rate}}</div>
-      <div v-if="item.state==0"><font color="red">待测评</font></div>
-      <div v-if="item.state==1"><font color="#11a746">已测评</font></div>
-      <div class="showrelativeBoxs" @click="viewprogress(item);" v-if="item.applystate==0">点击查看进度</div>
-      <div class="showrelativeBoxs action" @click="viewprogress(item);" v-if="item.applystate==1">查看申请结果</div>
+
+      <div v-if="item.exa==0"><font color="red">待测评</font></div>
+      <div v-if="item.exa==2"><font color="red">未审核通过</font></div>
+      <div v-if="item.exa==1"><font color="#11a746">已测评</font></div>
+
+      <div class="showrelativeBoxs" @click="viewprogress(item);" v-if="item.applystate==0 && item.exa==0">点击查看进度</div>
+      <div class="showrelativeBoxs action2" @click="viewprogress(item);" v-if="item.applystate==0 && item.exa==2">点击查看原因</div>
+      <div class="showrelativeBoxs action3" @click="viewprogress(item);" v-if="item.applystate==0 && item.exa==1">点击立即申请</div>
+      <div class="showrelativeBoxs action" @click="viewprogress(item);" v-if="item.applystate==1">查看申请额度</div>
   </div>
   <div class="showDateFlagBoxs" v-if="showDateFlag == 1"></div>
 </div>

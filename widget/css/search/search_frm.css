@@ -5,3 +5,5 @@
 .showrelativeBoxs{border:1px solid #f78748;background:#f78748;color:#ffffff;position:absolute;bottom:0.5rem;right:0.5rem;padding:0.2rem 0.5rem;border-radius:0.2rem;}
 .showDateFlagBoxs{background:url(../../image/noproduct.png) no-repeat;background-position:center;}
 .action{background:#4d85ff;border:1px solid #4d85ff;}
+.action2{background:red;border:1px solid red;}
+.action3{background:#11a746;border:1px solid #11a746;}
